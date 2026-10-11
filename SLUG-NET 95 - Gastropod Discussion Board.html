@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SLUG-NET 95 [v3.11 for Gastropods] - Gastropod Discussion Board</title>
+  <!-- Tailwind CSS CDN for fluid utility layouts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+    /* Windows 95 System Fonts and Reset */
+    :root {
+      --win-bg: #c0c0c0;
+      --win-teal: #008080;
+      --win-navy: #000080;
+      --win-navy-light: #1084d0;
+      --win-light: #ffffff;
+      --win-gray-light: #dfdfdf;
+      --win-gray-dark: #808080;
+      --win-dark: #000000;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--win-teal);
+      font-family: "MS Sans Serif", Tahoma, "Segoe UI", Arial, sans-serif;
+      font-size: 11px;
+      color: #000000;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Windows 95 3D Bevel Utilities */
+    .win-outset {
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #000000;
+      border-bottom: 2px solid #000000;
+      box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px #808080;
+      background-color: var(--win-bg);
+    }
+
+    .win-inset {
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      box-shadow: inset 1px 1px 0px #000000, inset -1px -1px 0px #dfdfdf;
+      background-color: #ffffff;
+    }
+
+    .win-button {
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #000000;
+      border-bottom: 2px solid #000000;
+      box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px #808080;
+      background-color: var(--win-bg);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      padding: 2px 8px;
+      outline: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .win-button:active, .win-button.active {
+      border-top: 2px solid #000000;
+      border-left: 2px solid #000000;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #dfdfdf;
+      padding-top: 3px;
+      padding-left: 9px;
+      padding-bottom: 1px;
+      padding-right: 7px;
+    }
+
+    /* Active Title Bar Gradient */
+    .title-bar-active {
+      background: linear-gradient(90deg, #000080, #1084d0);
+      color: #ffffff;
+      font-weight: bold;
+      letter-spacing: 0.3px;
+    }
+
+    .title-bar-inactive {
+      background: #808080;
+      color: #dfdfdf;
+      font-weight: bold;
+    }
+
+    /* Pixel rendering enforcement */
+    canvas, .pixelated {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* Custom Scrollbars in Win95 Style */
+    ::-webkit-scrollbar {
+      width: 16px;
+      height: 16px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #dfdfdf;
+      box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #ffffff;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--win-bg);
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #000000;
+      border-bottom: 2px solid #000000;
+    }
+
+    /* Scanline overlay for that authentic CRT feel (subtle) */
+    .crt-overlay {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.08) 50%);
+      background-size: 100% 4px;
+      z-index: 999;
+    }
+
+    /* Marquee & Badges */
+    .counter-display {
+      font-family: 'VT323', monospace;
+      font-size: 18px;
+      letter-spacing: 2px;
+      color: #00ff00;
+      background: #000000;
+      border: 2px inset #808080;
+      padding: 1px 6px;
+    }
+  </style>
+</head>
+<body class="relative h-screen w-screen overflow-hidden select-none">
+  <!-- Subtle CRT Scanlines -->
+  <div class="crt-overlay"></div>
+
+  <!-- Windows 95 Desktop Icons Grid -->
+  <div class="absolute top-3 left-3 flex flex-col gap-5 z-0">
+    <!-- Desktop Icon: My Slug -->
+    <div class="desktop-icon flex flex-col items-center w-16 p-1 cursor-pointer group text-center" onclick="showSlugStatsModal()">
+      <div class="w-8 h-8 flex items-center justify-center mb-1 group-active:opacity-80">
+        <svg viewBox="0 0 32 32" class="w-8 h-8 drop-shadow">
+          <!-- Computer monitor with slug -->
+          <rect x="2" y="4" width="28" height="20" fill="#c0c0c0" stroke="#000" stroke-width="1.5"/>
+          <rect x="5" y="7" width="22" height="14" fill="#008080"/>
+          <rect x="10" y="24" width="12" height="3" fill="#808080" stroke="#000"/>
+          <rect x="7" y="27" width="18" height="3" fill="#c0c0c0" stroke="#000"/>
+          <!-- Little slug on screen -->
+          <path d="M8 17 Q 14 13, 20 16 Q 23 16, 24 18 L 8 18 Z" fill="#eab308"/>
+          <circle cx="21" cy="13" r="1.5" fill="#000"/>
+        </svg>
+      </div>
+      <span class="text-white text-[11px] px-1 group-hover:bg-[#000080] group-hover:border group-hover:border-dotted group-hover:border-white leading-tight">My Slug</span>
+    </div>
+
+    <!-- Desktop Icon: Network Slime -->
+    <div class="desktop-icon flex flex-col items-center w-16 p-1 cursor-pointer group text-center" onclick="playSlugSound('crawl')">
+      <div class="w-8 h-8 flex items-center justify-center mb-1">
+        <svg viewBox="0 0 32 32" class="w-8 h-8">
+          <rect x="4" y="6" width="14" height="10" fill="#000080" stroke="#fff"/>
+          <rect x="14" y="16" width="14" height="10" fill="#000080" stroke="#fff"/>
+          <path d="M11 16 L11 21 L14 21" stroke="#fff" stroke-width="2" fill="none"/>
+          <circle cx="16" cy="18" r="2" fill="#22c55e"/>
+        </svg>
+      </div>
+      <span class="text-white text-[11px] px-1 group-hover:bg-[#000080] leading-tight">Network Slime</span>
+    </div>
+
+    <!-- Desktop Icon: Salt Shield / Salt Recycle Bin -->
+    <div class="desktop-icon flex flex-col items-center w-16 p-1 cursor-pointer group text-center" onclick="openSaltWarning()">
+      <div class="w-8 h-8 flex items-center justify-center mb-1">
+        <svg viewBox="0 0 32 32" class="w-8 h-8">
+          <path d="M6 10 L26 10 L22 28 L10 28 Z" fill="#808080" stroke="#000" stroke-width="1.5"/>
+          <rect x="4" y="6" width="24" height="4" fill="#c0c0c0" stroke="#000"/>
+          <!-- Salt warning symbol -->
+          <circle cx="16" cy="18" r="5" fill="#ef4444"/>
+          <path d="M14 16 L18 20 M18 16 L14 20" stroke="#fff" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <span class="text-white text-[11px] px-1 group-hover:bg-[#000080] leading-tight">Salt Shield</span>
+    </div>
+
+    <!-- Desktop Icon: SlimePad -->
+    <div class="desktop-icon flex flex-col items-center w-16 p-1 cursor-pointer group text-center" onclick="openNewTopicModal()">
+      <div class="w-8 h-8 flex items-center justify-center mb-1">
+        <svg viewBox="0 0 32 32" class="w-8 h-8">
+          <rect x="6" y="3" width="20" height="26" fill="#fff" stroke="#000" stroke-width="1.5"/>
+          <line x1="9" y1="8" x2="23" y2="8" stroke="#000"/>
+          <line x1="9" y1="12" x2="23" y2="12" stroke="#000"/>
+          <line x1="9" y1="16" x2="23" y2="16" stroke="#000"/>
+          <line x1="9" y1="20" x2="18" y2="20" stroke="#22c55e" stroke-width="2"/>
+          <circle cx="22" cy="22" r="3" fill="#eab308"/>
+        </svg>
+      </div>
+      <span class="text-white text-[11px] px-1 group-hover:bg-[#000080] leading-tight">New Topic</span>
+    </div>
+  </div>
+
+  <!-- MAIN APPLICATION WINDOW -->
+  <div id="main-window" class="win-outset absolute inset-x-2 md:inset-x-6 top-3 bottom-10 flex flex-col z-10 max-w-[1200px] mx-auto shadow-2xl">
+    
+    <!-- Window Title Bar -->
+    <div class="title-bar-active h-6 px-1 flex items-center justify-between select-none cursor-move" id="window-header">
+      <div class="flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap">
+        <!-- 16x16 Pixel Slug Title Icon -->
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 16 16">
+          <rect width="16" height="16" fill="#000080"/>
+          <circle cx="12" cy="4" r="1.5" fill="#facc15"/>
+          <circle cx="9" cy="6" r="1.5" fill="#facc15"/>
+          <path d="M3 13 C5 10, 8 11, 13 8 C14 11, 10 13, 2 13 Z" fill="#ca8a04"/>
+          <line x1="12" y1="4" x2="11" y2="8" stroke="#facc15" stroke-width="1"/>
+          <line x1="9" y1="6" x2="8" y2="9" stroke="#facc15" stroke-width="1"/>
+        </svg>
+        <span class="font-bold text-xs tracking-wider">SLUG-NET 95 [v3.11 for Gastropods] - Gastropod Discussion Board</span>
+      </div>
+
+      <!-- Min / Max / Close Window Buttons -->
+      <div class="flex items-center gap-1">
+        <button class="win-button w-4 h-4 !p-0 font-bold" title="Minimize" onclick="minimizeWindow()">_</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold" title="Maximize" onclick="toggleMaximize()">&#9633;</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold text-red-900" title="Close" onclick="showCloseDialog()">&#10005;</button>
+      </div>
+    </div>
+
+    <!-- Window Menu Bar -->
+    <div class="bg-[#c0c0c0] border-b border-[#808080] px-1 py-0.5 flex gap-3 text-xs">
+      <div class="relative group cursor-pointer px-1.5 py-0.5 hover:bg-[#000080] hover:text-white">
+        <span><u>F</u>ile</span>
+        <div class="hidden group-hover:flex absolute left-0 top-full flex-col win-outset bg-[#c0c0c0] text-black w-40 z-50 p-1 shadow-md">
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="openNewTopicModal()">New Topic...</div>
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="printMucusLog()">Print Mucus Log</div>
+          <div class="h-[1px] bg-[#808080] my-1"></div>
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="showCloseDialog()">Exit Gastropod OS</div>
+        </div>
+      </div>
+
+      <div class="relative group cursor-pointer px-1.5 py-0.5 hover:bg-[#000080] hover:text-white">
+        <span><u>E</u>dit</span>
+        <div class="hidden group-hover:flex absolute left-0 top-full flex-col win-outset bg-[#c0c0c0] text-black w-36 z-50 p-1 shadow-md">
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="copyForumLink()">Copy Thread URL</div>
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="clearSlimeFilter()">Reset Filters</div>
+        </div>
+      </div>
+
+      <div class="relative group cursor-pointer px-1.5 py-0.5 hover:bg-[#000080] hover:text-white">
+        <span><u>V</u>iew</span>
+        <div class="hidden group-hover:flex absolute left-0 top-full flex-col win-outset bg-[#c0c0c0] text-black w-44 z-50 p-1 shadow-md">
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="toggleWireframe()">Toggle 3D Wireframe</div>
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="cycleSlugColor()">Cycle Species Skin</div>
+        </div>
+      </div>
+
+      <div class="relative group cursor-pointer px-1.5 py-0.5 hover:bg-[#000080] hover:text-white">
+        <span><u>M</u>ucus</span>
+        <div class="hidden group-hover:flex absolute left-0 top-full flex-col win-outset bg-[#c0c0c0] text-black w-44 z-50 p-1 shadow-md">
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="playSlugSound('squelch')">Deploy Wet Squelch</div>
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="playSlugSound('splat')">Mucus Splat (.WAV)</div>
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="boostMoisture()">100% Moisture Boost</div>
+        </div>
+      </div>
+
+      <div class="relative group cursor-pointer px-1.5 py-0.5 hover:bg-[#000080] hover:text-white">
+        <span class="text-red-700 font-bold"><u>S</u>alt Shield</span>
+        <div class="hidden group-hover:flex absolute left-0 top-full flex-col win-outset bg-[#c0c0c0] text-black w-48 z-50 p-1 shadow-md">
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer text-red-700 font-bold" onclick="openSaltWarning()">Scan Sodium Danger!</div>
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="playSlugSound('hiss')">Deploy Salinity Alarm</div>
+        </div>
+      </div>
+
+      <div class="relative group cursor-pointer px-1.5 py-0.5 hover:bg-[#000080] hover:text-white">
+        <span><u>H</u>elp</span>
+        <div class="hidden group-hover:flex absolute left-0 top-full flex-col win-outset bg-[#c0c0c0] text-black w-44 z-50 p-1 shadow-md">
+          <div class="px-3 py-1 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="showAboutDialog()">About SLUG-NET 95...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vintage 90s Web Banner & Retro Marquee -->
+    <div class="bg-[#c0c0c0] px-2 py-1 flex flex-wrap items-center justify-between border-b-2 border-[#808080] gap-2">
+      <!-- 90s badges -->
+      <div class="flex items-center gap-2">
+        <div class="win-inset px-2 py-0.5 bg-yellow-200 border border-yellow-600 flex items-center gap-1 font-mono text-[10px] font-bold text-amber-900 animate-pulse">
+          <span>⚠️ CAUTION: SLOW TRAFFIC 🐌</span>
+        </div>
+        <div class="win-inset px-1.5 py-0.5 bg-[#000080] text-white text-[10px] flex items-center gap-1">
+          <span>NETSCAPE NAVIGATOR 3.0 GOLD</span>
+        </div>
+      </div>
+
+      <!-- Hit Visitor Counter -->
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] font-bold text-gray-700">VISITORS:</span>
+        <div class="counter-display" id="visitor-counter">00048291</div>
+        <button class="win-button text-xs py-0.5 px-2 bg-red-100 font-bold text-red-900" onclick="openSaltWarning()">
+          🚨 SALT RADAR
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Split Area -->
+    <div class="flex-1 overflow-hidden flex flex-col lg:flex-row bg-[#c0c0c0] p-1.5 gap-1.5">
+
+      <!-- LEFT COLUMN: Big 3D Rotating Slug Engine & Web Audio Soundboard -->
+      <div class="w-full lg:w-[420px] flex flex-col gap-1.5 shrink-0">
+        
+        <!-- 3D Pixel Slug Display Window Frame -->
+        <div class="win-inset bg-black p-2 flex flex-col items-center relative overflow-hidden flex-1 min-h-[260px]">
+          <!-- Window badge overlay -->
+          <div class="absolute top-1 left-2 z-10 flex items-center gap-1">
+            <span class="text-[10px] font-mono text-green-400 font-bold tracking-wider">[3D SLUG-O-VISION RENDERER]</span>
+          </div>
+
+          <div class="absolute top-1 right-2 z-10 flex items-center gap-1">
+            <span id="fps-counter" class="text-[9px] font-mono text-yellow-300">30.0 FPS</span>
+          </div>
+
+          <!-- HTML5 Canvas for real-time 3D pixelated gastropod -->
+          <canvas id="slugCanvas" width="220" height="170" class="w-full h-full pixelated block cursor-grab active:cursor-grabbing"></canvas>
+
+          <!-- Slime stats banner under canvas -->
+          <div class="w-full flex items-center justify-between text-[10px] font-mono text-emerald-400 bg-neutral-900 px-2 py-0.5 border-t border-neutral-700">
+            <span id="slug-species-label">Species: Arion vulgaris</span>
+            <span id="slug-hydration-label">Hydration: 98.4%</span>
+          </div>
+        </div>
+
+        <!-- 3D Slug Controls Bar -->
+        <div class="win-outset p-1.5 bg-[#c0c0c0] flex flex-col gap-1.5">
+          <div class="text-[11px] font-bold flex justify-between items-center text-gray-800">
+            <span>Slug Locomotion Controls:</span>
+            <span id="crawl-speed-text" class="text-[10px] text-blue-900 font-mono font-bold">Standard Slime</span>
+          </div>
+
+          <div class="grid grid-cols-4 gap-1">
+            <button class="win-button text-[10px] !py-1 font-bold" onclick="setSlugSpeed(0)">Pause</button>
+            <button class="win-button text-[10px] !py-1 active" id="btn-speed-slow" onclick="setSlugSpeed(1)">Slow Crawl</button>
+            <button class="win-button text-[10px] !py-1" id="btn-speed-std" onclick="setSlugSpeed(2)">Normal</button>
+            <button class="win-button text-[10px] !py-1 text-amber-800 font-bold" id="btn-speed-turbo" onclick="setSlugSpeed(4)">Turbo Glime</button>
+          </div>
+
+          <div class="flex items-center gap-2 pt-1 border-t border-[#808080]">
+            <button class="win-button text-[10px] flex-1" onclick="cycleSlugColor()">
+              🎨 Morphs: <span id="current-morph-name" class="font-bold ml-1">Garden Brown</span>
+            </button>
+            <button class="win-button text-[10px] flex-1" onclick="toggleSlimeTrails()">
+              💧 Slime Trail: <span id="trail-status" class="font-bold text-green-700 ml-1">ON</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SLUG SOUND GENERATOR (WEB AUDIO API - NO EXTERNAL AUDIO FILES) -->
+        <div class="win-outset p-2 bg-[#c0c0c0] flex flex-col gap-1.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-blue-800" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+              </svg>
+              <span class="font-bold text-xs text-blue-950">SLUG SOUND GENERATOR 3.1</span>
+            </div>
+            <!-- Vintage Oscilloscope mini canvas -->
+            <canvas id="audioVisualizer" width="90" height="18" class="win-inset bg-black block"></canvas>
+          </div>
+
+          <div class="text-[10px] text-gray-700 leading-tight">
+            Synthesized live via Gastropod Web Audio DSP. Click below for authentic mucus vibrations:
+          </div>
+
+          <!-- The primary request button: BIG CHUNKY PLAY SLUG SOUND BUTTON -->
+          <button class="win-button w-full !py-2 bg-emerald-100 hover:bg-emerald-200 border-2 text-xs font-bold text-emerald-950 shadow flex items-center justify-center gap-2 group" onclick="playSlugSound('squelch')">
+            <span class="text-base group-active:translate-y-0.5">🔊</span>
+            <span class="tracking-wide uppercase">PLAY SLUG SOUND (.WAV)</span>
+          </button>
+
+          <!-- Sound Variations Grid -->
+          <div class="grid grid-cols-2 gap-1 pt-1">
+            <button class="win-button text-[10px] text-left" onclick="playSlugSound('crawl')">
+              🐌 Slime Crawl
+            </button>
+            <button class="win-button text-[10px] text-left" onclick="playSlugSound('munch')">
+              🥬 Lettuce Nibble
+            </button>
+            <button class="win-button text-[10px] text-left" onclick="playSlugSound('splat')">
+              💦 Mucus Splat
+            </button>
+            <button class="win-button text-[10px] text-left text-red-900 font-bold" onclick="playSlugSound('hiss')">
+              ⚠️ Danger Sizzle
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: Fully Functional SLUG-NET 95 Discussion Forum -->
+      <div class="flex-1 flex flex-col gap-1.5 win-outset p-1.5 overflow-hidden">
+        
+        <!-- Forum Toolbar -->
+        <div class="flex flex-wrap items-center justify-between gap-1 pb-1 border-b border-[#808080]">
+          <div class="flex items-center gap-1.5">
+            <button class="win-button font-bold text-xs !py-1" onclick="openNewTopicModal()">
+              <span class="text-green-700 font-extrabold">+</span> New Topic
+            </button>
+            <button class="win-button text-xs !py-1" onclick="reloadThreads()">
+              🔄 Refresh Board
+            </button>
+          </div>
+
+          <!-- Subforum Filter Tabs -->
+          <div class="flex items-center gap-1 overflow-x-auto text-[10px]">
+            <button class="win-button active" id="tab-all" onclick="filterForum('all')">All Slugs</button>
+            <button class="win-button" id="tab-hydr" onclick="filterForum('hydration')">Hydration</button>
+            <button class="win-button" id="tab-defense" onclick="filterForum('defense')">Salt Defense</button>
+            <button class="win-button" id="tab-culinary" onclick="filterForum('culinary')">Decomposing Cuisine</button>
+          </div>
+        </div>
+
+        <!-- Forum Threads Table Container -->
+        <div id="forum-list-view" class="win-inset flex-1 overflow-y-auto bg-white flex flex-col">
+          <table class="w-full text-left border-collapse text-[11px]">
+            <thead class="sticky top-0 bg-[#c0c0c0] border-b-2 border-[#808080] text-black">
+              <tr>
+                <th class="p-1 border-r border-[#808080] w-6 text-center">Status</th>
+                <th class="p-1 border-r border-[#808080]">Topic / Subject</th>
+                <th class="p-1 border-r border-[#808080] w-24">Author</th>
+                <th class="p-1 border-r border-[#808080] w-12 text-center">Replies</th>
+                <th class="p-1 w-20">Last Squelch</th>
+              </tr>
+            </thead>
+            <tbody id="threads-tbody">
+              <!-- Dynamically rendered threads -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Thread Reading & Reply Modal / Pane -->
+        <div id="thread-detail-view" class="hidden flex-1 win-inset bg-white flex flex-col overflow-hidden">
+          <!-- Thread View Top Bar -->
+          <div class="bg-[#000080] text-white px-2 py-1 flex items-center justify-between text-xs font-bold">
+            <span id="detail-thread-title">Thread Subject</span>
+            <button class="win-button text-black !p-0.5 w-4 h-4 font-bold" onclick="closeThreadView()">&#10005;</button>
+          </div>
+
+          <!-- Posts Scroll List -->
+          <div id="posts-container" class="flex-1 overflow-y-auto p-2 space-y-2 bg-[#f4f4f4]">
+            <!-- Dynamic Post Items rendered here -->
+          </div>
+
+          <!-- Quick Reply Box -->
+          <div class="border-t-2 border-[#808080] bg-[#c0c0c0] p-1.5 flex flex-col gap-1">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="font-bold">Post a Slug Reply:</span>
+              <div class="flex items-center gap-1">
+                <span>Handle:</span>
+                <input type="text" id="reply-author-input" value="SlimeGuest_95" class="win-inset px-1 py-0.5 text-xs w-28 bg-white"/>
+              </div>
+            </div>
+            <div class="flex gap-1">
+              <textarea id="reply-message-input" rows="2" placeholder="Leave a sticky trail of your thoughts here..." class="win-inset flex-1 p-1 text-xs resize-none"></textarea>
+              <button class="win-button !py-1 px-4 font-bold text-xs" onclick="submitReply()">
+                Submit<br/>Post
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status bar at bottom of window -->
+        <div class="win-inset px-2 py-0.5 bg-[#c0c0c0] text-[10px] text-gray-700 flex justify-between items-center">
+          <span id="status-bar-text">Connected to SLIME-GATEWAY via 28.8k Modem • 6 threads loaded</span>
+          <span class="font-mono">COM1: 57600 baud</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- WINDOWS 95 TASKBAR -->
+  <div class="absolute bottom-0 inset-x-0 h-7 bg-[#c0c0c0] win-outset flex items-center justify-between px-1 z-40 select-none">
+    
+    <!-- Start Button & Active Window Buttons -->
+    <div class="flex items-center gap-1 h-full py-0.5">
+      <!-- Classic Windows 95 Start Button -->
+      <button id="start-button" class="win-button font-bold text-xs h-full px-2 gap-1.5 flex items-center" onclick="toggleStartMenu()">
+        <!-- Windows 95 4-color flag SVG -->
+        <svg class="w-4 h-4" viewBox="0 0 16 16">
+          <path d="M1 2 L7 1 L7 7 L1 7 Z" fill="#ff0000"/>
+          <path d="M8 1 L15 2 L15 7 L8 7 Z" fill="#00aa00"/>
+          <path d="M1 8 L7 8 L7 14 L1 15 Z" fill="#0000ff"/>
+          <path d="M8 8 L15 8 L15 15 L8 14 Z" fill="#ffaa00"/>
+        </svg>
+        <span class="font-black text-[12px] tracking-wide">Start</span>
+      </button>
+
+      <!-- Taskbar Window Tab for SlugNet -->
+      <button class="win-button active h-full px-2 max-w-[200px] flex items-center gap-1 overflow-hidden" onclick="focusMainWindow()">
+        <span class="text-xs">🐌</span>
+        <span class="truncate text-[11px] font-bold">SLUG-NET 95 - Gastr...</span>
+      </button>
+    </div>
+
+    <!-- System Tray (Sound & Real-time Clock) -->
+    <div class="win-inset h-full py-0.5 px-2 flex items-center gap-2 bg-[#c0c0c0] text-xs">
+      <!-- Audio volume icon -->
+      <button class="cursor-pointer" onclick="playSlugSound('squelch')" title="Audio Online">
+        <svg class="w-3.5 h-3.5 text-black" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"/>
+        </svg>
+      </button>
+      <span id="win95-clock" class="font-mono text-[11px]">07:10 PM</span>
+    </div>
+  </div>
+
+  <!-- START MENU POPUP -->
+  <div id="start-menu" class="hidden absolute bottom-7 left-1 w-52 win-outset bg-[#c0c0c0] flex z-50 shadow-2xl">
+    <!-- Left vertical banner -->
+    <div class="w-6 bg-[#000080] flex items-end justify-center pb-2">
+      <span class="text-white font-bold text-sm tracking-widest -rotate-90 origin-bottom-left transform translate-x-4 mb-2">Windows95</span>
+    </div>
+
+    <!-- Menu items list -->
+    <div class="flex-1 py-1 text-xs">
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="openNewTopicModal(); toggleStartMenu();">
+        <span>📝</span>
+        <span>New Slug Topic</span>
+      </div>
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="showSlugStatsModal(); toggleStartMenu();">
+        <span>🐌</span>
+        <span>My Slug Companion</span>
+      </div>
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer text-red-800 font-bold" onclick="openSaltWarning(); toggleStartMenu();">
+        <span>🚨</span>
+        <span>Salt Defense Alert</span>
+      </div>
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="playSlugSound('squelch'); toggleStartMenu();">
+        <span>🔊</span>
+        <span>Squelch Player</span>
+      </div>
+      <div class="h-[1px] bg-[#808080] my-1 mx-2"></div>
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="showAboutDialog(); toggleStartMenu();">
+        <span>❓</span>
+        <span>About SlugNet...</span>
+      </div>
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="showCloseDialog(); toggleStartMenu();">
+        <span>🛑</span>
+        <span>Shut Down SlimeOS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Salt Alert Warning Dialog (Easter Egg) -->
+  <div id="salt-warning-modal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
+    <div class="win-outset bg-[#c0c0c0] w-full max-w-sm p-1 shadow-2xl">
+      <!-- Dialog Title Bar -->
+      <div class="title-bar-active h-6 px-1 flex items-center justify-between text-xs">
+        <span class="font-bold flex items-center gap-1">⚠️ CRITICAL GASTROPOD WARNING</span>
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="closeSaltWarning()">&#10005;</button>
+      </div>
+
+      <div class="p-4 flex gap-4 items-center">
+        <!-- Big retro warning exclamation icon -->
+        <div class="w-12 h-12 shrink-0 flex items-center justify-center">
+          <svg viewBox="0 0 36 36" class="w-10 h-10">
+            <path d="M18 2 L34 32 L2 32 Z" fill="#facc15" stroke="#000" stroke-width="2"/>
+            <rect x="16.5" y="11" width="3" height="11" fill="#000"/>
+            <circle cx="18" cy="26" r="2" fill="#000"/>
+          </svg>
+        </div>
+
+        <div class="text-xs space-y-1">
+          <p class="font-bold text-red-950">ELEVATED SODIUM CHLORIDE LEVELS DETECTED!</p>
+          <p class="text-gray-800 text-[11px]">Suburban human detected scattering table salt near the marigold flower bed. Osmotic pressure imminent.</p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 p-2 bg-[#c0c0c0] border-t border-[#808080]">
+        <button class="win-button px-4 py-1 font-bold" onclick="deployMucusShield()">
+          Deploy Mucus Shield
+        </button>
+        <button class="win-button px-4 py-1" onclick="closeSaltWarning()">
+          Flee (1 mm/sec)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: New Topic Submission Dialog -->
+  <div id="new-topic-modal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
+    <div class="win-outset bg-[#c0c0c0] w-full max-w-md p-1 shadow-2xl">
+      <div class="title-bar-active h-6 px-1 flex items-center justify-between text-xs">
+        <span class="font-bold">Compose New Discussion Topic - SLUG-NET 95</span>
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="closeNewTopicModal()">&#10005;</button>
+      </div>
+
+      <div class="p-3 space-y-2 text-xs">
+        <div>
+          <label class="block font-bold mb-0.5">Author Slug Handle:</label>
+          <input type="text" id="new-topic-author" value="Gastropod_Pro" class="win-inset w-full p-1 bg-white"/>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-0.5">Subforum Category:</label>
+          <select id="new-topic-category" class="win-inset w-full p-1 bg-white">
+            <option value="hydration">Hydration & Damp Weather</option>
+            <option value="defense">Salt Defense & Bird Evasion</option>
+            <option value="culinary">Decomposing Matter & Gastronomy</option>
+            <option value="all">General Shell-less Musings</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-0.5">Topic Title:</label>
+          <input type="text" id="new-topic-title" placeholder="e.g. Is morning dew better than lawn sprinklers?" class="win-inset w-full p-1 bg-white"/>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-0.5">Initial Message Body:</label>
+          <textarea id="new-topic-content" rows="4" placeholder="Detail your slimy observations here..." class="win-inset w-full p-1 bg-white"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 p-2 bg-[#c0c0c0] border-t border-[#808080]">
+        <button class="win-button px-4 py-1 font-bold" onclick="submitNewTopic()">
+          Post Topic
+        </button>
+        <button class="win-button px-4 py-1" onclick="closeNewTopicModal()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: My Slug Companion Status -->
+  <div id="slug-stats-modal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
+    <div class="win-outset bg-[#c0c0c0] w-full max-w-xs p-1 shadow-2xl">
+      <div class="title-bar-active h-6 px-1 flex items-center justify-between text-xs">
+        <span class="font-bold">My Slug - Gastropod Hardware Diagnostic</span>
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="closeSlugStatsModal()">&#10005;</button>
+      </div>
+
+      <div class="p-3 text-xs space-y-2">
+        <div class="flex items-center gap-2">
+          <div class="w-12 h-12 win-inset bg-amber-950/20 flex items-center justify-center text-3xl">
+            🐌
+          </div>
+          <div>
+            <div class="font-bold">Bartholomew II</div>
+            <div class="text-[10px] text-gray-700">Adult Leopard Slug (Limax maximus)</div>
+          </div>
+        </div>
+
+        <div class="win-inset p-2 bg-white space-y-1 text-[11px] font-mono">
+          <div class="flex justify-between"><span>Hydration:</span><span class="text-green-700 font-bold">98.8% Optimal</span></div>
+          <div class="flex justify-between"><span>Slime Viscosity:</span><span class="text-blue-800">High Grade</span></div>
+          <div class="flex justify-between"><span>Radula Wear:</span><span>14% (Sharp)</span></div>
+          <div class="flex justify-between"><span>Dietary Intake:</span><span>Rotting Strawberry</span></div>
+          <div class="flex justify-between"><span>Salt Distance:</span><span class="text-emerald-600">> 500 Meters</span></div>
+        </div>
+
+        <button class="win-button w-full !py-1 font-bold" onclick="feedSlug()">
+          🥬 Feed Fresh Wet Lettuce (.WAV)
+        </button>
+      </div>
+
+      <div class="p-2 border-t border-[#808080] flex justify-end">
+        <button class="win-button px-4 py-0.5" onclick="closeSlugStatsModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: About Dialog -->
+  <div id="about-modal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
+    <div class="win-outset bg-[#c0c0c0] w-full max-w-xs p-1 shadow-2xl">
+      <div class="title-bar-active h-6 px-1 flex items-center justify-between text-xs">
+        <span class="font-bold">About SLUG-NET 95</span>
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="closeAboutDialog()">&#10005;</button>
+      </div>
+      <div class="p-4 text-xs space-y-2 text-center">
+        <div class="text-3xl">🐌</div>
+        <div class="font-bold text-sm">SLUG-NET 95 (Release 3.11)</div>
+        <p class="text-gray-700 text-[11px]">The internet's premiere moisture-retentive discussion sanctuary for gastropods and land mollusks worldwide.</p>
+        <p class="text-[10px] text-gray-500 font-mono">Built with Authentic 1995 Sound FX & 3D Voxel Engine.</p>
+      </div>
+      <div class="p-2 border-t border-[#808080] flex justify-center">
+        <button class="win-button px-6 py-0.5 font-bold" onclick="closeAboutDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast Bar (Win95 Inset Style) -->
+  <div id="toast-bar" class="hidden fixed top-8 right-8 win-outset bg-[#ffffe1] border border-black p-2 z-50 text-xs shadow-lg max-w-xs flex items-center gap-2">
+    <span class="text-base">🐌</span>
+    <span id="toast-text" class="text-black">Action completed.</span>
+  </div>
+
+  <script>
+    /* -------------------------------------------------------------
+     * GASTROPOD SOUND ENGINE (Pure Web Audio API - No External Files)
+     * ------------------------------------------------------------- */
+    let audioCtx = null;
+    let analyserNode = null;
+    let visualizerCanvas = null;
+    let visualizerCtx = null;
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+          analyserNode = audioCtx.createAnalyser();
+          analyserNode.fftSize = 64;
+          analyserNode.connect(audioCtx.destination);
+          setupVisualizer();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function setupVisualizer() {
+      visualizerCanvas = document.getElementById('audioVisualizer');
+      if (!visualizerCanvas) return;
+      visualizerCtx = visualizerCanvas.getContext('2d');
+      drawVisualizerLoop();
+    }
+
+    function drawVisualizerLoop() {
+      requestAnimationFrame(drawVisualizerLoop);
+      if (!visualizerCtx || !analyserNode) return;
+
+      const bufferLength = analyserNode.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      analyserNode.getByteFrequencyData(dataArray);
+
+      visualizerCtx.fillStyle = '#000000';
+      visualizerCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+
+      const barWidth = visualizerCanvas.width / bufferLength;
+      for (let i = 0; i < bufferLength; i++) {
+        const barHeight = (dataArray[i] / 255) * visualizerCanvas.height;
+        // Vintage phosphor green
+        visualizerCtx.fillStyle = '#00ff41';
+        visualizerCtx.fillRect(
+          i * barWidth,
+          visualizerCanvas.height - barHeight,
+          barWidth - 1,
+          barHeight
+        );
+      }
+    }
+
+    // Play synthesized slug sound effects
+    function playSlugSound(type = 'squelch') {
+      try {
+        initAudioContext();
+        if (!audioCtx) return;
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'squelch') {
+          // Wet squelch: downward swept resonant biquad filter + modulated noise
+          playWetSquelchSound(now);
+          showToast('🔊 Squelch generated! [wet_slug_01.wav]');
+        } else if (type === 'crawl') {
+          // Rhythmic sticky peeling/suction sound
+          playCrawlSound(now);
+          showToast('🐌 Slime suction crawl triggered.');
+        } else if (type === 'munch') {
+          // Rapid scraping radula lettuce bite
+          playMunchSound(now);
+          showToast('🥬 Radula rasping lettuce.');
+        } else if (type === 'splat') {
+          // Low gooey impact splat
+          playSplatSound(now);
+          showToast('💦 Mucus splat deployed.');
+        } else if (type === 'hiss') {
+          // Danger / salt sizzle high pitch warning
+          playDangerHissSound(now);
+        }
+      } catch (err) {
+        console.error("Audio synthesis error:", err);
+      }
+    }
+
+    // Wet Squelch DSP implementation
+    function playWetSquelchSound(startTime) {
+      // 1. Swept low-frequency squelch oscillator
+      const osc = audioCtx.createOscillator();
+      const oscGain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      filter.type = 'lowpass';
+      filter.Q.value = 14; // High resonance for wet sound
+      filter.frequency.setValueAtTime(1400, startTime);
+      filter.frequency.exponentialRampToValueAtTime(180, startTime + 0.28);
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, startTime);
+      osc.frequency.exponentialRampToValueAtTime(65, startTime + 0.28);
+
+      // Volume envelope
+      oscGain.gain.setValueAtTime(0.001, startTime);
+      oscGain.gain.linearRampToValueAtTime(0.5, startTime + 0.04);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.28);
+
+      osc.connect(filter);
+      filter.connect(oscGain);
+      oscGain.connect(analyserNode);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.3);
+
+      // 2. White noise squirt for liquid squelch texture
+      const bufferSize = audioCtx.sampleRate * 0.25;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = noiseBuffer;
+
+      const noiseFilter = audioCtx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.Q.value = 8.0;
+      noiseFilter.frequency.setValueAtTime(2600, startTime);
+      noiseFilter.frequency.exponentialRampToValueAtTime(450, startTime + 0.22);
+
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.001, startTime);
+      noiseGain.gain.linearRampToValueAtTime(0.35, startTime + 0.03);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.22);
+
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(analyserNode);
+
+      noise.start(startTime);
+      noise.stop(startTime + 0.25);
+    }
+
+    // Slime Crawl DSP
+    function playCrawlSound(startTime) {
+      for (let i = 0; i < 3; i++) {
+        const offset = startTime + (i * 0.12);
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(500 - (i * 60), offset);
+        osc.frequency.exponentialRampToValueAtTime(140, offset + 0.09);
+
+        gain.gain.setValueAtTime(0.001, offset);
+        gain.gain.linearRampToValueAtTime(0.3, offset + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, offset + 0.09);
+
+        osc.connect(gain);
+        gain.connect(analyserNode);
+        osc.start(offset);
+        osc.stop(offset + 0.1);
+      }
+    }
+
+    // Lettuce Nibble DSP (Radula scraping)
+    function playMunchSound(startTime) {
+      for (let i = 0; i < 4; i++) {
+        const offset = startTime + (i * 0.07);
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800 + Math.random() * 400, offset);
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1600;
+        filter.Q.value = 5;
+
+        gain.gain.setValueAtTime(0.2, offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, offset + 0.04);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(analyserNode);
+        osc.start(offset);
+        osc.stop(offset + 0.05);
+      }
+    }
+
+    // Mucus Splat DSP
+    function playSplatSound(startTime) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(120, startTime);
+      osc.frequency.exponentialRampToValueAtTime(45, startTime + 0.35);
+
+      gain.gain.setValueAtTime(0.7, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+
+      osc.connect(gain);
+      gain.connect(analyserNode);
+      osc.start(startTime);
+      osc.stop(startTime + 0.36);
+    }
+
+    // Salt Sizzle / Danger Alarm DSP
+    function playDangerHissSound(startTime) {
+      // PC Speaker error beep chord
+      const freq1 = 440;
+      const freq2 = 880;
+      [freq1, freq2].forEach(f => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.value = f;
+        gain.gain.setValueAtTime(0.15, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.25);
+        osc.connect(gain);
+        gain.connect(analyserNode);
+        osc.start(startTime);
+        osc.stop(startTime + 0.26);
+      });
+    }
+
+    /* -------------------------------------------------------------
+     * 3D ROTATING PIXELATED SLUG ENGINE (VOXEL / 3D GASTROPOD)
+     * ------------------------------------------------------------- */
+    const canvas = document.getElementById('slugCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Species Color Palettes
+    const SLUG_PALETTES = [
+      {
+        name: "Garden Brown",
+        species: "Arion vulgaris",
+        body: "#8b5a2b",
+        mantle: "#654321",
+        belly: "#d2b48c",
+        eyes: "#261708",
+        highlights: "#f5deb3",
+        trail: "rgba(180, 240, 180, 0.6)"
+      },
+      {
+        name: "Leopard Spotted",
+        species: "Limax maximus",
+        body: "#c2b280",
+        mantle: "#5c4033",
+        belly: "#e8dcbe",
+        eyes: "#000000",
+        highlights: "#ffffff",
+        trail: "rgba(220, 245, 160, 0.7)"
+      },
+      {
+        name: "Banana Slug",
+        species: "Ariolimax californicus",
+        body: "#eab308",
+        mantle: "#ca8a04",
+        belly: "#fef08a",
+        eyes: "#451a03",
+        highlights: "#fef9c3",
+        trail: "rgba(254, 240, 138, 0.7)"
+      },
+      {
+        name: "Neon Bio-Slime",
+        species: "Gastropoda Cybernetica",
+        body: "#10b981",
+        mantle: "#047857",
+        belly: "#6ee7b7",
+        eyes: "#000000",
+        highlights: "#ecfdf5",
+        trail: "rgba(52, 211, 153, 0.8)"
+      }
+    ];
+
+    let currentPaletteIndex = 0;
+    let slugRotY = 0.6;
+    let slugRotX = 0.25;
+    let crawlSpeedMultiplier = 1.0;
+    let slimeTrailEnabled = true;
+    let wireframeMode = false;
+    let lastTime = performance.now();
+    let frameCount = 0;
+    let fpsTimer = performance.now();
+
+    // Voxel Model Generation for Slug
+    let slugVoxels = [];
+
+    function buildSlugVoxelModel() {
+      slugVoxels = [];
+      const palette = SLUG_PALETTES[currentPaletteIndex];
+
+      // Procedural gastropod anatomy definition
+      // Z: Along slug length (-24 tail to +20 head)
+      // Y: Height (0 foot/bottom to +10 mantle top)
+      // X: Width (-7 to +7)
+
+      for (let z = -24; z <= 18; z += 2) {
+        // Compute radius along body
+        let radX, radY;
+        let isMantle = false;
+        let isHead = false;
+
+        if (z < -8) {
+          // Tapered tail
+          const t = (z - (-24)) / 16; // 0 to 1
+          radX = Math.max(1, t * 5);
+          radY = Math.max(1, t * 3.5);
+        } else if (z >= -8 && z <= 8) {
+          // Mantle (swollen back shield with respiratory pore)
+          isMantle = true;
+          radX = 6.2;
+          radY = 5.2;
+        } else {
+          // Head section
+          isHead = true;
+          const t = (18 - z) / 10;
+          radX = 4.2;
+          radY = 3.8;
+        }
+
+        // Generate cross-sectional slice voxels
+        for (let x = -Math.floor(radX); x <= Math.floor(radX); x += 2) {
+          for (let y = 0; y <= Math.floor(radY); y += 2) {
+            // Elliptical test
+            const normX = x / radX;
+            const normY = (y - 1) / radY;
+            if (normX * normX + normY * normY <= 1.05) {
+              let color = palette.body;
+              if (y <= 0) {
+                color = palette.belly; // foot / underside
+              } else if (isMantle && (x * x + y * y > 10)) {
+                color = palette.mantle;
+              }
+
+              // Spots for Leopard pattern
+              if (currentPaletteIndex === 1 && ((x * 7 + z * 3) % 5 === 0)) {
+                color = "#4a3525";
+              }
+
+              // Specular shine on top ridge
+              if (y >= Math.floor(radY) - 1 && Math.abs(x) <= 1) {
+                color = palette.highlights;
+              }
+
+              slugVoxels.push({ x, y, z, color, baseZ: z, baseY: y });
+            }
+          }
+        }
+      }
+
+      // Add Optical Tentacles (Eye stalks) pointing up-forward from head
+      // Left eye stalk
+      for (let s = 1; s <= 5; s++) {
+        slugVoxels.push({
+          x: -2.5 - s * 0.4,
+          y: 4 + s * 1.1,
+          z: 16 + s * 0.9,
+          color: (s === 5) ? palette.eyes : palette.mantle,
+          baseZ: 16 + s * 0.9,
+          baseY: 4 + s * 1.1,
+          isEye: (s === 5)
+        });
+        // Right eye stalk
+        slugVoxels.push({
+          x: 2.5 + s * 0.4,
+          y: 4 + s * 1.1,
+          z: 16 + s * 0.9,
+          color: (s === 5) ? palette.eyes : palette.mantle,
+          baseZ: 16 + s * 0.9,
+          baseY: 4 + s * 1.1,
+          isEye: (s === 5)
+        });
+      }
+
+      // Add lower sensory tentacles
+      slugVoxels.push({ x: -2, y: 1, z: 20, color: palette.belly, baseZ: 20, baseY: 1 });
+      slugVoxels.push({ x: 2, y: 1, z: 20, color: palette.belly, baseZ: 20, baseY: 1 });
+    }
+
+    buildSlugVoxelModel();
+
+    // Mouse drag rotation controls
+    let isDragging = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+      playSlugSound('crawl');
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - lastMouseX;
+      const dy = e.clientY - lastMouseY;
+      slugRotY += dx * 0.015;
+      slugRotX = Math.max(-0.6, Math.min(0.8, slugRotX + dy * 0.015));
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    });
+
+    // Touch event support for mobile
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        lastMouseX = e.touches[0].clientX;
+        lastMouseY = e.touches[0].clientY;
+        playSlugSound('crawl');
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => { isDragging = false; });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - lastMouseX;
+      const dy = e.touches[0].clientY - lastMouseY;
+      slugRotY += dx * 0.02;
+      slugRotX = Math.max(-0.6, Math.min(0.8, slugRotX + dy * 0.02));
+      lastMouseX = e.touches[0].clientX;
+      lastMouseY = e.touches[0].clientY;
+    }, { passive: true });
+
+    // Main 3D Rendering Loop
+    function renderSlug(timestamp) {
+      requestAnimationFrame(renderSlug);
+
+      const dt = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+
+      // Calculate FPS
+      frameCount++;
+      if (timestamp - fpsTimer >= 1000) {
+        document.getElementById('fps-counter').innerText = (frameCount * 1000 / (timestamp - fpsTimer)).toFixed(1) + ' FPS';
+        frameCount = 0;
+        fpsTimer = timestamp;
+      }
+
+      // Continuous automatic rotation if not dragging
+      if (!isDragging && crawlSpeedMultiplier > 0) {
+        slugRotY += 0.8 * dt * (crawlSpeedMultiplier * 0.7);
+      }
+
+      // Clear Canvas with retro dithering or dark gray
+      ctx.fillStyle = "#0c1014";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw subtle retro grid floor
+      ctx.strokeStyle = "#1b2836";
+      ctx.lineWidth = 1;
+      const gridSpacing = 16;
+      for (let gx = -100; gx <= 100; gx += gridSpacing) {
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2 + gx, canvas.height / 2 + 35);
+        ctx.lineTo(canvas.width / 2 + gx * 1.8, canvas.height);
+        ctx.stroke();
+      }
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2 + 10;
+      const scale = 3.6;
+
+      const cosY = Math.cos(slugRotY);
+      const sinY = Math.sin(slugRotY);
+      const cosX = Math.cos(slugRotX);
+      const sinX = Math.sin(slugRotX);
+
+      // Slime Crawl undulation wave
+      const undulationTime = timestamp * 0.005 * crawlSpeedMultiplier;
+
+      // Project voxels into camera view
+      const projectedVoxels = [];
+
+      for (let i = 0; i < slugVoxels.length; i++) {
+        const v = slugVoxels[i];
+
+        // Biomechanical crawl undulation
+        const wave = Math.sin(v.baseZ * 0.28 - undulationTime) * 1.4;
+        let animatedY = v.y + (v.y <= 1 ? wave * 0.6 : wave);
+        let animatedZ = v.z;
+
+        // Eye stalk wiggle
+        let animatedX = v.x;
+        if (v.isEye) {
+          animatedX += Math.sin(timestamp * 0.004 + v.x) * 0.6;
+        }
+
+        // 3D Rotation Y
+        let rx = animatedX * cosY - animatedZ * sinY;
+        let rz = animatedX * sinY + animatedZ * cosY;
+
+        // 3D Rotation X (Pitch)
+        let ry = animatedY * cosX - rz * sinX;
+        let rz2 = animatedY * sinX + rz * cosX;
+
+        // Simple perspective projection
+        const fov = 200;
+        const perspective = fov / (fov + rz2 + 30);
+        const px = centerX + rx * scale * perspective;
+        const py = centerY - ry * scale * perspective;
+
+        projectedVoxels.push({
+          px: Math.round(px),
+          py: Math.round(py),
+          depth: rz2,
+          color: v.color,
+          size: Math.max(2, Math.round(5.5 * perspective))
+        });
+      }
+
+      // Slime Trail Rendering on ground
+      if (slimeTrailEnabled) {
+        ctx.fillStyle = SLUG_PALETTES[currentPaletteIndex].trail;
+        for (let t = -30; t <= -12; t += 4) {
+          let tx = Math.sin(t * 0.3) * 1.5;
+          let rtx = tx * cosY - t * sinY;
+          let rtz = tx * sinY + t * cosY;
+          let rty = 0 * cosX - rtz * sinX;
+          let rtz2 = 0 * sinX + rtz * cosX;
+          const p = 200 / (200 + rtz2 + 30);
+          const px = Math.round(centerX + rtx * scale * p);
+          const py = Math.round(centerY - rty * scale * p);
+          ctx.beginPath();
+          ctx.arc(px, py, 3.5 * p, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Sort back-to-front (Painter's algorithm)
+      projectedVoxels.sort((a, b) => b.depth - a.depth);
+
+      // Render pixelated cubes
+      for (let i = 0; i < projectedVoxels.length; i++) {
+        const pv = projectedVoxels[i];
+        if (wireframeMode) {
+          ctx.strokeStyle = pv.color;
+          ctx.strokeRect(pv.px - pv.size / 2, pv.py - pv.size / 2, pv.size, pv.size);
+        } else {
+          ctx.fillStyle = pv.color;
+          ctx.fillRect(pv.px - pv.size / 2, pv.py - pv.size / 2, pv.size, pv.size);
+
+          // Top highlight pixel
+          ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+          ctx.fillRect(pv.px - pv.size / 2, pv.py - pv.size / 2, pv.size, 1);
+        }
+      }
+    }
+
+    // Start 3D Loop immediately
+    requestAnimationFrame(renderSlug);
+
+    function setSlugSpeed(spd) {
+      crawlSpeedMultiplier = spd;
+      const speedLabel = document.getElementById('crawl-speed-text');
+      
+      // Update UI button highlights
+      document.querySelectorAll('#btn-speed-slow, #btn-speed-std, #btn-speed-turbo').forEach(b => b.classList.remove('active'));
+      
+      if (spd === 0) {
+        speedLabel.innerText = "Suspended Animation";
+      } else if (spd === 1) {
+        speedLabel.innerText = "Slow Crawl (Damp Night)";
+        document.getElementById('btn-speed-slow').classList.add('active');
+        playSlugSound('crawl');
+      } else if (spd === 2) {
+        speedLabel.innerText = "Standard Slime";
+        document.getElementById('btn-speed-std').classList.add('active');
+        playSlugSound('squelch');
+      } else {
+        speedLabel.innerText = "TURBO RADULA ACTIVE!";
+        document.getElementById('btn-speed-turbo').classList.add('active');
+        playSlugSound('splat');
+      }
+    }
+
+    function cycleSlugColor() {
+      currentPaletteIndex = (currentPaletteIndex + 1) % SLUG_PALETTES.length;
+      const p = SLUG_PALETTES[currentPaletteIndex];
+      document.getElementById('current-morph-name').innerText = p.name;
+      document.getElementById('slug-species-label').innerText = "Species: " + p.species;
+      buildSlugVoxelModel();
+      playSlugSound('squelch');
+      showToast(`Morph changed to ${p.name}!`);
+    }
+
+    function toggleSlimeTrails() {
+      slimeTrailEnabled = !slimeTrailEnabled;
+      document.getElementById('trail-status').innerText = slimeTrailEnabled ? "ON" : "OFF";
+      document.getElementById('trail-status').className = slimeTrailEnabled ? "font-bold text-green-700 ml-1" : "font-bold text-red-700 ml-1";
+      playSlugSound('crawl');
+    }
+
+    function toggleWireframe() {
+      wireframeMode = !wireframeMode;
+      showToast(wireframeMode ? "Wireframe Mesh Activated" : "Solid Voxels Restored");
+      playSlugSound('crawl');
+    }
+
+    function boostMoisture() {
+      document.getElementById('slug-hydration-label').innerText = "Hydration: 99.9% (SATURATED)";
+      playSlugSound('splat');
+      showToast("Moisture restored to maximum gelatinous capacity!");
+    }
+
+    /* -------------------------------------------------------------
+     * SLUG-NET 95 FORUM SYSTEM STATE & METHODS
+     * ------------------------------------------------------------- */
+    const initialThreads = [
+      {
+        id: "t1",
+        category: "hydration",
+        title: "PSA: Avoid the Sidewalk After 9AM (Too Dry)",
+        author: "SlimeQueen_95",
+        authorTitle: "Senior Gastropod",
+        avatar: "🐌",
+        repliesCount: 4,
+        views: 312,
+        lastPost: "10:14 AM",
+        posts: [
+          {
+            author: "SlimeQueen_95",
+            authorTitle: "Senior Gastropod",
+            joined: "Jun 1995",
+            avatar: "🐌",
+            date: "Today at 07:15 AM",
+            content: "Sisters and brothers of the mantle, heed my warning! The concrete patio on 4th street is already registering 18% ambient moisture. Several fellow Arionidae were stranded halfway to the hostas. Keep your eye stalks vigilant and adhere strictly to mulch territory until dusk.",
+            sig: "--- \nGliding through life 1mm at a time | Moisture is love"
+          },
+          {
+            author: "BananaSlug4Life",
+            authorTitle: "Pacific Wanderer",
+            joined: "Aug 1995",
+            avatar: "🍌",
+            date: "Today at 08:32 AM",
+            content: "Solid advice. I carry backup slime packets at all times. A good canopy of ferns will buy you 4 extra hours of transit safely.",
+            sig: "--- \nAriolimax forever."
+          },
+          {
+            author: "RadulaBoy",
+            authorTitle: "Leaf Shredder",
+            joined: "Sep 1995",
+            avatar: "🍃",
+            date: "Today at 09:45 AM",
+            content: "Almost dried out my pedal gland yesterday chasing a soggy potato skin. Never again. Thank you SlimeQueen!",
+            sig: "--- \nIf it's brown, chomp it down."
+          }
+        ]
+      },
+      {
+        id: "t2",
+        category: "defense",
+        title: "Salt: Defense Strategies and Early Warning Signs",
+        author: "SaltSurvivor_02",
+        authorTitle: "Veteran Scout",
+        avatar: "🛡️",
+        repliesCount: 6,
+        views: 890,
+        lastPost: "11:02 AM",
+        posts: [
+          {
+            author: "SaltSurvivor_02",
+            authorTitle: "Veteran Scout",
+            joined: "May 1995",
+            avatar: "🛡️",
+            date: "Yesterday at 11:42 PM",
+            content: "Salt is our greatest existential threat. White crystalline formations on gravel or wood perimeter boards mean IMMEDIATE RETREAT. If contact is made: retract tentacles immediately, secrete sacrificial froth mucus, and evacuate toward wet moss.",
+            sig: "--- \nRemember the Great Salthouse of '94."
+          },
+          {
+            author: "LordOfTheRadula",
+            authorTitle: "Compost Elder",
+            joined: "Jul 1995",
+            avatar: "👑",
+            date: "Today at 06:12 AM",
+            content: "Always keep a 5cm buffer zone from decorative pots. Gardening humans show no mercy with those cylindrical shakers.",
+            sig: "--- \nSlow and steady leaves the best mucus trail."
+          }
+        ]
+      },
+      {
+        id: "t3",
+        category: "culinary",
+        title: "Optimal Decay Level for Backyard Compost Dining",
+        author: "GourmetMollusk",
+        authorTitle: "Master Chef",
+        avatar: "🍄",
+        repliesCount: 3,
+        views: 420,
+        lastPost: "01:22 PM",
+        posts: [
+          {
+            author: "GourmetMollusk",
+            authorTitle: "Master Chef",
+            joined: "Jul 1995",
+            avatar: "🍄",
+            date: "Yesterday at 04:19 PM",
+            content: "What is everyone's consensus on tomato skins? In my opinion, stage 4 breakdown (when it collapses into black mush) has vastly superior mouthfeel compared to freshly discarded salad trimmings. Discuss.",
+            sig: "--- \nFermentation is flavor."
+          },
+          {
+            author: "RadulaBoy",
+            authorTitle: "Leaf Shredder",
+            joined: "Sep 1995",
+            avatar: "🍃",
+            date: "Yesterday at 05:01 PM",
+            content: "Stage 4 tomato with mild mold topping is Michelin star level gastropod cuisine. A delight for the rasping tongue.",
+            sig: "--- \nIf it's brown, chomp it down."
+          }
+        ]
+      },
+      {
+        id: "t4",
+        category: "hydration",
+        title: "Leopard Slug Pattern Showcase [High Res 320x240]",
+        author: "RadulaBoy",
+        authorTitle: "Leaf Shredder",
+        avatar: "🐆",
+        repliesCount: 5,
+        views: 650,
+        lastPost: "02:15 PM",
+        posts: [
+          {
+            author: "RadulaBoy",
+            authorTitle: "Leaf Shredder",
+            joined: "Sep 1995",
+            avatar: "🐆",
+            date: "2 Days ago at 02:15 PM",
+            content: "Check my latest mantle spots under the moonlight. The contrast this season is sharper than ever thanks to a heavy diet of wet oak lichen. Rate my spots 1-10!",
+            sig: "--- \nSpots speak louder than words."
+          }
+        ]
+      },
+      {
+        id: "t5",
+        category: "defense",
+        title: "Is beer trapped inside a yellow plastic cup a trap? (URGENT)",
+        author: "HopGlider",
+        authorTitle: "Fresh Slime",
+        avatar: "🍺",
+        repliesCount: 8,
+        views: 1204,
+        lastPost: "03:40 PM",
+        posts: [
+          {
+            author: "HopGlider",
+            authorTitle: "Fresh Slime",
+            joined: "Oct 1995",
+            avatar: "🍺",
+            date: "Today at 03:00 PM",
+            content: "Smells like glorious malted barley near the zucchini. But the cup is sunk flush into the dirt and the walls look steep. Should I dive in for a sip??",
+            sig: "--- \nHop lover"
+          },
+          {
+            author: "SlimeQueen_95",
+            authorTitle: "Senior Gastropod",
+            joined: "Jun 1995",
+            avatar: "🐌",
+            date: "Today at 03:05 PM",
+            content: "DO NOT GO IN. IT IS A BEER TRAP. REPEAT: IT IS A SINKING YEAST HAZARD. TURN BACK NOW AND HEAD TO THE HYDRANGEAS!",
+            sig: "--- \nGliding through life 1mm at a time"
+          }
+        ]
+      }
+    ];
+
+    let currentThreads = JSON.parse(JSON.stringify(initialThreads));
+    let activeFilter = 'all';
+    let currentOpenThreadId = null;
+
+    function renderThreads() {
+      const tbody = document.getElementById('threads-tbody');
+      tbody.innerHTML = '';
+
+      const filtered = currentThreads.filter(t => {
+        if (activeFilter === 'all') return true;
+        return t.category === activeFilter;
+      });
+
+      filtered.forEach((t, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = `border-b border-[#e5e7eb] hover:bg-[#000080] hover:text-white cursor-pointer select-none ${idx % 2 === 0 ? 'bg-white' : 'bg-[#f8f9fa]'}`;
+        tr.onclick = () => openThreadView(t.id);
+
+        tr.innerHTML = `
+          <td class="p-1 border-r border-[#dfdfdf] text-center text-xs">
+            ${t.category === 'defense' ? '⚠️' : '📄'}
+          </td>
+          <td class="p-1 border-r border-[#dfdfdf] font-bold">
+            <span class="hover:underline">${t.title}</span>
+          </td>
+          <td class="p-1 border-r border-[#dfdfdf] text-[10px]">
+            ${t.author}
+          </td>
+          <td class="p-1 border-r border-[#dfdfdf] text-center font-mono">
+            ${t.posts.length}
+          </td>
+          <td class="p-1 text-[10px] text-gray-500 font-mono">
+            ${t.lastPost}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('status-bar-text').innerText = 
+        `Connected to SLIME-GATEWAY • ${filtered.length} threads displayed (${activeFilter.toUpperCase()})`;
+    }
+
+    function filterForum(filter) {
+      activeFilter = filter;
+      document.querySelectorAll('#tab-all, #tab-hydr, #tab-defense, #tab-culinary').forEach(btn => btn.classList.remove('active'));
+      
+      if (filter === 'all') document.getElementById('tab-all').classList.add('active');
+      if (filter === 'hydration') document.getElementById('tab-hydr').classList.add('active');
+      if (filter === 'defense') document.getElementById('tab-defense').classList.add('active');
+      if (filter === 'culinary') document.getElementById('tab-culinary').classList.add('active');
+
+      playSlugSound('crawl');
+      renderThreads();
+    }
+
+    function reloadThreads() {
+      playSlugSound('squelch');
+      showToast('Board refreshed from SLIME-NET Gateway');
+      renderThreads();
+    }
+
+    function openThreadView(threadId) {
+      const thread = currentThreads.find(t => t.id === threadId);
+      if (!thread) return;
+
+      currentOpenThreadId = threadId;
+      playSlugSound('squelch');
+
+      document.getElementById('forum-list-view').classList.add('hidden');
+      document.getElementById('thread-detail-view').classList.remove('hidden');
+      document.getElementById('detail-thread-title').innerText = thread.title;
+
+      renderPostsForThread(thread);
+    }
+
+    function closeThreadView() {
+      currentOpenThreadId = null;
+      document.getElementById('thread-detail-view').classList.add('hidden');
+      document.getElementById('forum-list-view').classList.remove('hidden');
+      playSlugSound('crawl');
+    }
+
+    function renderPostsForThread(thread) {
+      const container = document.getElementById('posts-container');
+      container.innerHTML = '';
+
+      thread.posts.forEach((post, i) => {
+        const postCard = document.createElement('div');
+        postCard.className = 'win-outset bg-[#c0c0c0] p-2 flex flex-col md:flex-row gap-3 text-xs';
+
+        postCard.innerHTML = `
+          <!-- User info column -->
+          <div class="win-inset bg-[#e8e8e8] p-1.5 w-full md:w-32 shrink-0 flex md:flex-col items-center md:items-start gap-1 text-[10px]">
+            <div class="text-2xl p-1 bg-white border border-[#808080]">${post.avatar || '🐌'}</div>
+            <div class="font-bold text-[#000080] text-xs">${post.author}</div>
+            <div class="text-gray-600">${post.authorTitle || 'Gastropod'}</div>
+            <div class="text-gray-500 font-mono mt-1">Joined: ${post.joined || 'Jun 1995'}</div>
+            <div class="text-emerald-700 font-bold">● ONLINE</div>
+          </div>
+
+          <!-- Post content column -->
+          <div class="flex-1 flex flex-col justify-between win-inset bg-white p-2 text-black">
+            <div>
+              <div class="flex justify-between items-center text-[10px] text-gray-500 pb-1 border-b border-[#dfdfdf] mb-1.5 font-mono">
+                <span>Post #${i + 1}</span>
+                <span>${post.date}</span>
+              </div>
+              <div class="leading-relaxed whitespace-pre-line text-[11px]">
+                ${post.content}
+              </div>
+            </div>
+
+            <!-- Signature -->
+            ${post.sig ? `
+              <div class="mt-3 pt-1 border-t border-dashed border-[#808080] text-[9px] text-gray-500 whitespace-pre-line font-mono">
+                ${post.sig}
+              </div>
+            ` : ''}
+          </div>
+        `;
+        container.appendChild(postCard);
+      });
+
+      // Scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function submitReply() {
+      if (!currentOpenThreadId) return;
+
+      const author = document.getElementById('reply-author-input').value.trim() || 'Anonymous_Slug';
+      const message = document.getElementById('reply-message-input').value.trim();
+
+      if (!message) {
+        showToast('Please type a reply message first!');
+        playSlugSound('hiss');
+        return;
+      }
+
+      const thread = currentThreads.find(t => t.id === currentOpenThreadId);
+      if (!thread) return;
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      thread.posts.push({
+        author: author,
+        authorTitle: 'Junior Mollusk',
+        joined: 'Oct 1995',
+        avatar: '🐌',
+        date: `Today at ${timeStr}`,
+        content: message,
+        sig: '--- \nFreshly slathered post'
+      });
+
+      thread.lastPost = timeStr;
+      document.getElementById('reply-message-input').value = '';
+
+      playSlugSound('squelch');
+      renderPostsForThread(thread);
+      renderThreads();
+      showToast('Reply posted to SLUG-NET thread!');
+    }
+
+    function openNewTopicModal() {
+      document.getElementById('new-topic-modal').classList.remove('hidden');
+      playSlugSound('crawl');
+    }
+
+    function closeNewTopicModal() {
+      document.getElementById('new-topic-modal').classList.add('hidden');
+      playSlugSound('crawl');
+    }
+
+    function submitNewTopic() {
+      const author = document.getElementById('new-topic-author').value.trim() || 'FriendlySlug';
+      const cat = document.getElementById('new-topic-category').value;
+      const title = document.getElementById('new-topic-title').value.trim();
+      const content = document.getElementById('new-topic-content').value.trim();
+
+      if (!title || !content) {
+        showToast('Please enter both a topic title and message body.');
+        playSlugSound('hiss');
+        return;
+      }
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const newId = 't_' + Date.now();
+      currentThreads.unshift({
+        id: newId,
+        category: cat,
+        title: title,
+        author: author,
+        authorTitle: 'Topic Creator',
+        avatar: '🐌',
+        repliesCount: 1,
+        views: 1,
+        lastPost: timeStr,
+        posts: [
+          {
+            author: author,
+            authorTitle: 'Topic Creator',
+            joined: 'Oct 1995',
+            avatar: '🐌',
+            date: `Today at ${timeStr}`,
+            content: content,
+            sig: '--- \nNew slime trails lead to new thoughts.'
+          }
+        ]
+      });
+
+      closeNewTopicModal();
+      document.getElementById('new-topic-title').value = '';
+      document.getElementById('new-topic-content').value = '';
+
+      playSlugSound('splat');
+      renderThreads();
+      showToast('New topic successfully broadcast across SLUG-NET!');
+    }
+
+    // Real-time Windows 95 Taskbar Clock
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const minStr = minutes < 10 ? '0' + minutes : minutes;
+      const clockEl = document.getElementById('win95-clock');
+      if (clockEl) {
+        clockEl.innerText = `${hours}:${minStr} ${ampm}`;
+      }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Start Menu Toggle
+    function toggleStartMenu() {
+      const menu = document.getElementById('start-menu');
+      const startBtn = document.getElementById('start-button');
+      if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        startBtn.classList.add('active');
+        playSlugSound('crawl');
+      } else {
+        menu.classList.add('hidden');
+        startBtn.classList.remove('active');
+      }
+    }
+
+    // Close Start Menu when clicking outside
+    window.addEventListener('click', (e) => {
+      const menu = document.getElementById('start-menu');
+      const startBtn = document.getElementById('start-button');
+      if (!menu.contains(e.target) && !startBtn.contains(e.target)) {
+        menu.classList.add('hidden');
+        startBtn.classList.remove('active');
+      }
+    });
+
+    // Salt Warning Dialog
+    function openSaltWarning() {
+      document.getElementById('salt-warning-modal').classList.remove('hidden');
+      playSlugSound('hiss');
+    }
+
+    function closeSaltWarning() {
+      document.getElementById('salt-warning-modal').classList.add('hidden');
+      playSlugSound('crawl');
+    }
+
+    function deployMucusShield() {
+      closeSaltWarning();
+      playSlugSound('splat');
+      showToast('🛡️ Mucus Shield Deployed! 100% Salinity Resistance Active!');
+    }
+
+    // My Slug Companion Modal
+    function showSlugStatsModal() {
+      document.getElementById('slug-stats-modal').classList.remove('hidden');
+      playSlugSound('crawl');
+    }
+
+    function closeSlugStatsModal() {
+      document.getElementById('slug-stats-modal').classList.add('hidden');
+    }
+
+    function feedSlug() {
+      playSlugSound('munch');
+      showToast('Crunch! Bartholomew devoured the fresh wet lettuce.');
+    }
+
+    // About Dialog
+    function showAboutDialog() {
+      document.getElementById('about-modal').classList.remove('hidden');
+      playSlugSound('squelch');
+    }
+
+    function closeAboutDialog() {
+      document.getElementById('about-modal').classList.add('hidden');
+    }
+
+    // Window controls
+    function minimizeWindow() {
+      showToast('SLUG-NET minimized to Taskbar.');
+      playSlugSound('crawl');
+    }
+
+    function toggleMaximize() {
+      const win = document.getElementById('main-window');
+      win.classList.toggle('!inset-0');
+      win.classList.toggle('!max-w-none');
+      playSlugSound('crawl');
+    }
+
+    function showCloseDialog() {
+      showToast('Slugs cannot close SLUG-NET. The slime is eternal.');
+      playSlugSound('squelch');
+    }
+
+    function focusMainWindow() {
+      playSlugSound('crawl');
+      showToast('SLUG-NET window brought to front.');
+    }
+
+    function printMucusLog() {
+      playSlugSound('squelch');
+      showToast('Printing mucus logs to Dot-Matrix printer...');
+    }
+
+    function copyForumLink() {
+      const dummyUrl = "http://slugnet95.mollusk.org/forum";
+      const tempInput = document.createElement("input");
+      tempInput.value = dummyUrl;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      showToast(`Copied ${dummyUrl} to Clipboard!`);
+      playSlugSound('crawl');
+    }
+
+    function clearSlimeFilter() {
+      filterForum('all');
+    }
+
+    // Vintage Toast Banner System
+    let toastTimeout = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toast-bar');
+      const text = document.getElementById('toast-text');
+      text.innerText = msg;
+      toast.classList.remove('hidden');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3500);
+    }
+
+    // Initialize Forum on page load
+    renderThreads();
+  </script>
+</body>
+</html>
