@@ -1,0 +1,2768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SLUG OS 95 - Gastropod Desktop Operating System</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: VT323 for authentic LED Counters -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --win-bg: #c0c0c0;
+      --win-teal: #008080;
+      --win-navy: #000080;
+      --win-navy-light: #1084d0;
+      --win-light: #ffffff;
+      --win-gray-light: #dfdfdf;
+      --win-gray-dark: #808080;
+      --win-dark: #000000;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--win-teal);
+      font-family: "MS Sans Serif", Tahoma, "Segoe UI", Arial, sans-serif;
+      font-size: 11px;
+      color: #000000;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Windows 95 3D Bevel Utilities */
+    .win-outset {
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #000000;
+      border-bottom: 2px solid #000000;
+      box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px #808080;
+      background-color: var(--win-bg);
+    }
+
+    .win-inset {
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      box-shadow: inset 1px 1px 0px #000000, inset -1px -1px 0px #dfdfdf;
+      background-color: #ffffff;
+    }
+
+    .win-inset-deep {
+      border-top: 2px solid #000000;
+      border-left: 2px solid #000000;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #dfdfdf;
+    }
+
+    .win-button {
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #000000;
+      border-bottom: 2px solid #000000;
+      box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px #808080;
+      background-color: var(--win-bg);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      padding: 2px 7px;
+      outline: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .win-button:active, .win-button.active {
+      border-top: 2px solid #000000;
+      border-left: 2px solid #000000;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #dfdfdf;
+      padding-top: 3px;
+      padding-left: 8px;
+      padding-bottom: 1px;
+      padding-right: 6px;
+    }
+
+    /* Window Header States */
+    .title-bar-active {
+      background: linear-gradient(90deg, #000080, #1084d0);
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .title-bar-inactive {
+      background: #808080;
+      color: #dfdfdf;
+      font-weight: bold;
+    }
+
+    /* Pixelated Canvas and Graphics */
+    canvas.pixelated, .pixelated {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* Retro LED Odometer / Counters */
+    .led-counter {
+      font-family: 'VT323', monospace;
+      font-size: 20px;
+      letter-spacing: 2px;
+      color: #ff0000;
+      background: #000000;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      padding: 0 4px;
+      display: inline-block;
+      text-shadow: 0 0 4px rgba(255, 0, 0, 0.7);
+    }
+
+    /* Classic Win95 Scrollbars */
+    ::-webkit-scrollbar {
+      width: 16px;
+      height: 16px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #dfdfdf;
+      box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #ffffff;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--win-bg);
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #000000;
+      border-bottom: 2px solid #000000;
+    }
+
+    /* CRT Scanline Filter */
+    .crt-overlay {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.08) 50%);
+      background-size: 100% 4px;
+      z-index: 9999;
+    }
+
+    /* Floating Windows base styling */
+    .win-window {
+      position: absolute;
+      min-width: 260px;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 3px 3px 10px rgba(0,0,0,0.4);
+    }
+
+    .win-window.maximized {
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: calc(100vh - 28px) !important;
+    }
+
+    /* SlugSweeper Tile Styles */
+    .sweeper-tile {
+      width: 24px;
+      height: 24px;
+      font-weight: bold;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .sweeper-unrevealed {
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #7b7b7b;
+      border-bottom: 2px solid #7b7b7b;
+      background: #bdbdbd;
+      cursor: pointer;
+    }
+    .sweeper-unrevealed:active {
+      border: 1px solid #7b7b7b;
+      background: #9e9e9e;
+    }
+    .sweeper-revealed {
+      border: 1px solid #7b7b7b;
+      background: #e0e0e0;
+    }
+  </style>
+</head>
+<body class="relative h-screen w-screen overflow-hidden select-none">
+  <!-- Subtle CRT overlay -->
+  <div class="crt-overlay"></div>
+
+  <!-- Fullscreen Canvas for Glistening Slime Cursor Trails & Splatters -->
+  <canvas id="slimeFxCanvas" class="absolute inset-0 pointer-events-none z-[9900]"></canvas>
+
+  <!-- Wandering Desktop Slugs Container -->
+  <div id="desktopSlugsContainer" class="absolute inset-0 pointer-events-none z-10 overflow-hidden"></div>
+
+  <!-- DESKTOP ICONS GRID -->
+  <div id="desktopGrid" class="absolute top-3 left-3 flex flex-col gap-4 z-0">
+    <!-- SLUG-NET Explorer Icon -->
+    <div class="flex flex-col items-center w-18 p-1 cursor-pointer group text-center" onclick="WinManager.open('win-slugnet')">
+      <div class="w-9 h-9 flex items-center justify-center mb-1 group-active:translate-y-0.5">
+        <svg viewBox="0 0 32 32" class="w-8 h-8 drop-shadow">
+          <circle cx="16" cy="16" r="14" fill="#000080" stroke="#fff" stroke-width="1.5"/>
+          <ellipse cx="16" cy="16" rx="14" ry="6" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+          <ellipse cx="16" cy="16" rx="6" ry="14" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+          <!-- Little snail/slug on globe -->
+          <path d="M10 20 Q 16 14, 22 18 Q 25 18, 26 21 L 10 21 Z" fill="#facc15"/>
+          <circle cx="23" cy="15" r="1.5" fill="#fff"/>
+        </svg>
+      </div>
+      <span class="text-white text-[11px] px-1 group-hover:bg-[#000080] group-hover:outline group-hover:outline-1 group-hover:outline-dotted group-hover:outline-white leading-tight">SLUG-NET<br>Explorer</span>
+    </div>
+
+    <!-- 3D Slug Lab Icon -->
+    <div class="flex flex-col items-center w-18 p-1 cursor-pointer group text-center" onclick="WinManager.open('win-sluglab')">
+      <div class="w-9 h-9 flex items-center justify-center mb-1 group-active:translate-y-0.5">
+        <svg viewBox="0 0 32 32" class="w-8 h-8 drop-shadow">
+          <rect x="3" y="3" width="26" height="26" fill="#1e293b" stroke="#ffffff" stroke-width="1.5"/>
+          <polygon points="16,6 26,12 26,24 16,30 6,24 6,12" fill="none" stroke="#10b981" stroke-width="1.5"/>
+          <circle cx="16" cy="18" r="4" fill="#facc15"/>
+          <circle cx="14" cy="13" r="1.5" fill="#facc15"/>
+          <circle cx="18" cy="13" r="1.5" fill="#facc15"/>
+        </svg>
+      </div>
+      <span class="text-white text-[11px] px-1 group-hover:bg-[#000080] leading-tight">Slug Lab 3D</span>
+    </div>
+
+    <!-- SlugSweeper Game Icon -->
+    <div class="flex flex-col items-center w-18 p-1 cursor-pointer group text-center" onclick="WinManager.open('win-slugsweeper')">
+      <div class="w-9 h-9 flex items-center justify-center mb-1 group-active:translate-y-0.5">
+        <svg viewBox="0 0 32 32" class="w-8 h-8 drop-shadow">
+          <rect x="2" y="2" width="28" height="28" fill="#c0c0c0" stroke="#000" stroke-width="1.5"/>
+          <!-- Smiley face -->
+          <circle cx="16" cy="16" r="9" fill="#facc15" stroke="#000" stroke-width="1.5"/>
+          <circle cx="13" cy="14" r="1.5" fill="#000"/>
+          <circle cx="19" cy="14" r="1.5" fill="#000"/>
+          <path d="M12 19 Q 16 23, 20 19" fill="none" stroke="#000" stroke-width="1.5"/>
+          <!-- Salt warning corner -->
+          <circle cx="24" cy="24" r="5" fill="#ef4444"/>
+          <text x="22" y="27" font-size="9" fill="#fff" font-weight="bold">🧂</text>
+        </svg>
+      </div>
+      <span class="text-white text-[11px] px-1 group-hover:bg-[#000080] leading-tight">SlugSweeper</span>
+    </div>
+
+    <!-- SlimePad Notepad Icon -->
+    <div class="flex flex-col items-center w-18 p-1 cursor-pointer group text-center" onclick="WinManager.open('win-slimepad')">
+      <div class="w-9 h-9 flex items-center justify-center mb-1 group-active:translate-y-0.5">
+        <svg viewBox="0 0 32 32" class="w-8 h-8 drop-shadow">
+          <rect x="5" y="3" width="22" height="26" fill="#fff" stroke="#000" stroke-width="1.5"/>
+          <line x1="8" y1="8" x2="24" y2="8" stroke="#000"/>
+          <line x1="8" y1="12" x2="24" y2="12" stroke="#000"/>
+          <line x1="8" y1="16" x2="24" y2="16" stroke="#000"/>
+          <line x1="8" y1="20" x2="20" y2="20" stroke="#22c55e" stroke-width="2"/>
+          <circle cx="21" cy="21" r="4" fill="#eab308"/>
+        </svg>
+      </div>
+      <span class="text-white text-[11px] px-1 group-hover:bg-[#000080] leading-tight">SlimePad</span>
+    </div>
+
+    <!-- SaltShield 95 Antivirus Icon -->
+    <div class="flex flex-col items-center w-18 p-1 cursor-pointer group text-center" onclick="WinManager.open('win-saltshield')">
+      <div class="w-9 h-9 flex items-center justify-center mb-1 group-active:translate-y-0.5">
+        <svg viewBox="0 0 32 32" class="w-8 h-8 drop-shadow">
+          <path d="M16 3 L28 8 L28 18 Q 16 28, 16 30 Q 16 28, 4 18 L4 8 Z" fill="#0284c7" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="16" cy="15" r="5" fill="#ef4444"/>
+          <text x="12" y="18" font-size="10" fill="#fff" font-weight="bold">🧂</text>
+        </svg>
+      </div>
+      <span class="text-white text-[11px] px-1 group-hover:bg-[#000080] leading-tight">SaltShield 95</span>
+    </div>
+
+    <!-- Slime Soundboard Icon -->
+    <div class="flex flex-col items-center w-18 p-1 cursor-pointer group text-center" onclick="WinManager.open('win-soundboard')">
+      <div class="w-9 h-9 flex items-center justify-center mb-1 group-active:translate-y-0.5">
+        <svg viewBox="0 0 32 32" class="w-8 h-8 drop-shadow">
+          <rect x="3" y="4" width="26" height="24" fill="#334155" stroke="#fff" stroke-width="1.5"/>
+          <path d="M7 16 Q 11 8, 16 16 T 25 16" fill="none" stroke="#22c55e" stroke-width="2"/>
+          <circle cx="9" cy="22" r="2" fill="#eab308"/>
+          <circle cx="16" cy="22" r="2" fill="#eab308"/>
+          <circle cx="23" cy="22" r="2" fill="#eab308"/>
+        </svg>
+      </div>
+      <span class="text-white text-[11px] px-1 group-hover:bg-[#000080] leading-tight">Soundboard</span>
+    </div>
+
+    <!-- Compost Bin (Recycle Bin) Icon -->
+    <div class="flex flex-col items-center w-18 p-1 cursor-pointer group text-center" onclick="WinManager.open('win-compost')">
+      <div class="w-9 h-9 flex items-center justify-center mb-1 group-active:translate-y-0.5">
+        <svg viewBox="0 0 32 32" class="w-8 h-8 drop-shadow">
+          <path d="M7 10 L25 10 L22 28 L10 28 Z" fill="#854d0e" stroke="#000" stroke-width="1.5"/>
+          <rect x="5" y="7" width="22" height="4" fill="#ca8a04" stroke="#000"/>
+          <text x="11" y="22" font-size="11">🍂</text>
+        </svg>
+      </div>
+      <span class="text-white text-[11px] px-1 group-hover:bg-[#000080] leading-tight">Compost Bin</span>
+    </div>
+  </div>
+
+  <!-- WINDOW 1: SLUG-NET Explorer (The Forum Web Browser) -->
+  <div id="win-slugnet" class="win-outset win-window z-20" style="top: 24px; left: 80px; width: 880px; height: 570px;">
+    <!-- Title Bar -->
+    <div class="title-bar-active h-6 px-1 flex items-center justify-between select-none cursor-move window-drag-handle">
+      <div class="flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap">
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 16 16">
+          <circle cx="8" cy="8" r="7" fill="#000080" stroke="#fff"/>
+          <path d="M4 11 Q 8 7, 12 9" stroke="#facc15" stroke-width="2" fill="none"/>
+        </svg>
+        <span class="font-bold text-xs tracking-wide">SLUG-NET Explorer - [http://www.slug-net.org/forum.php3]</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="WinManager.minimize('win-slugnet')">_</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="WinManager.toggleMaximize('win-slugnet')">&#9633;</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold text-red-900" onclick="WinManager.close('win-slugnet')">&#10005;</button>
+      </div>
+    </div>
+
+    <!-- Browser Menu Bar -->
+    <div class="bg-[#c0c0c0] border-b border-[#808080] px-1 py-0.5 flex gap-3 text-xs select-none">
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer">File</div>
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer">Edit</div>
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer">View</div>
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer">Favorites</div>
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer" onclick="SlimeAudio.squelch()">Slime</div>
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer" onclick="showAboutDialog()">Help</div>
+    </div>
+
+    <!-- Browser Navigation Toolbar & Spinning Slug Logo -->
+    <div class="bg-[#c0c0c0] p-1 border-b border-[#808080] flex items-center justify-between gap-2">
+      <div class="flex items-center gap-1">
+        <button class="win-button text-xs !py-0.5" onclick="ForumEngine.backToTopics()" title="Back">
+          <span>&larr;</span> Back
+        </button>
+        <button class="win-button text-xs !py-0.5" onclick="ForumEngine.reload()" title="Refresh">
+          <span>&#x21bb;</span> Reload
+        </button>
+        <button class="win-button text-xs !py-0.5" onclick="ForumEngine.backToTopics()" title="Home">
+          <span>&#x2302;</span> Home
+        </button>
+        <button class="win-button text-xs !py-0.5 bg-yellow-100 font-bold text-yellow-900" onclick="ForumEngine.openNewTopicModal()">
+          <span>&#x270e;</span> New Topic
+        </button>
+      </div>
+
+      <!-- Address Bar -->
+      <div class="flex-1 flex items-center gap-1">
+        <span class="font-bold text-[11px]">Address:</span>
+        <div class="win-inset flex-1 px-1.5 py-0.5 bg-white text-xs font-mono flex items-center">
+          <span class="text-blue-900 select-all" id="browser-address">http://www.slug-net.org/forum.php3</span>
+        </div>
+      </div>
+
+      <!-- Netscape Style Spinning/Wiggling Slug Animation Logo -->
+      <div class="win-inset w-7 h-7 bg-black flex items-center justify-center cursor-pointer group" onclick="SlimeAudio.squelch()" title="Click to Test Mucus Link">
+        <span class="text-lg group-hover:scale-125 transition-transform animate-bounce">🐌</span>
+      </div>
+    </div>
+
+    <!-- Browser Body: SLUG-NET Forum Content Area -->
+    <div class="flex-1 overflow-hidden flex flex-col bg-[#c0c0c0] p-1.5">
+
+      <!-- Retro Marquee Header Banner -->
+      <div class="win-inset bg-emerald-950 text-emerald-300 p-1 flex items-center justify-between px-2 mb-1.5 font-mono text-[11px] overflow-hidden">
+        <div class="flex items-center gap-2 overflow-hidden">
+          <span class="text-yellow-400 font-bold animate-pulse">★ ANNOUNCEMENT:</span>
+          <span class="whitespace-nowrap">HEAVY OVERNIGHT SPRINKLERS CONFIRMED ACROSS NORTH GARDEN BEDS. DEW LEVELS MAXIMAL. MAINTAIN SLIME INTEGRITY.</span>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="text-white text-[10px]">HITS:</span>
+          <span class="led-counter" id="forum-hits">048921</span>
+        </div>
+      </div>
+
+      <!-- Main Forum View: Topics Table -->
+      <div id="forum-topic-list" class="win-inset flex-1 flex flex-col bg-white overflow-hidden">
+        <!-- Forum Categories Filter Sub-bar -->
+        <div class="bg-[#dfdfdf] border-b border-[#808080] p-1 flex flex-wrap items-center gap-1 text-[11px]">
+          <span class="font-bold text-gray-700 mr-1">Gastropod Boards:</span>
+          <button class="win-button active" id="fcat-all" onclick="ForumEngine.filter('all')">All Slugs</button>
+          <button class="win-button" id="fcat-hydration" onclick="ForumEngine.filter('hydration')">💧 Hydration & Moisture</button>
+          <button class="win-button" id="fcat-defense" onclick="ForumEngine.filter('defense')">⚠️ Salt Defense Protocols</button>
+          <button class="win-button" id="fcat-buffet" onclick="ForumEngine.filter('buffet')">🥬 Hosta & Compost Buffet</button>
+          <button class="win-button" id="fcat-radula" onclick="ForumEngine.filter('radula')">🦷 Radula Care</button>
+        </div>
+
+        <!-- Topics Table -->
+        <div class="flex-1 overflow-y-auto">
+          <table class="w-full text-left border-collapse text-[11px]">
+            <thead class="sticky top-0 bg-[#c0c0c0] border-b-2 border-[#808080] text-black shadow-sm">
+              <tr>
+                <th class="p-1 border-r border-[#808080] w-7 text-center">Type</th>
+                <th class="p-1 border-r border-[#808080]">Discussion Topic / Subject</th>
+                <th class="p-1 border-r border-[#808080] w-32">Original Poster</th>
+                <th class="p-1 border-r border-[#808080] w-14 text-center">Replies</th>
+                <th class="p-1 border-r border-[#808080] w-14 text-center">Views</th>
+                <th class="p-1 w-24">Last Squelch</th>
+              </tr>
+            </thead>
+            <tbody id="forum-threads-body">
+              <!-- Dynamically populated threads -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Thread Reading & Reply Full View -->
+      <div id="forum-thread-view" class="hidden win-inset flex-1 flex-col bg-[#e0e0e0] overflow-hidden">
+        <!-- Thread Header Strip -->
+        <div class="bg-[#000080] text-white px-2 py-1 flex items-center justify-between">
+          <div class="flex items-center gap-2 overflow-hidden">
+            <button class="win-button text-black text-xs !py-0 !px-1 font-bold" onclick="ForumEngine.backToTopics()">&larr; Return to Board</button>
+            <span class="font-bold text-xs truncate" id="open-thread-title">Topic Title</span>
+          </div>
+          <span class="text-[10px] text-yellow-300 font-mono" id="open-thread-category">[HYDRATION]</span>
+        </div>
+
+        <!-- Scrollable Thread Posts List -->
+        <div id="thread-posts-stream" class="flex-1 overflow-y-auto p-2 space-y-2.5 bg-[#dfdfdf]">
+          <!-- Dynamic posts loaded here -->
+        </div>
+
+        <!-- Reply Input Box -->
+        <div class="win-outset p-2 bg-[#c0c0c0] flex flex-col gap-1 border-t-2 border-[#808080]">
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span>Post a Mucus Reply:</span>
+            <div class="flex items-center gap-1 font-normal text-[11px]">
+              <span>Slug Alias:</span>
+              <input type="text" id="forum-reply-author" value="GastropodWanderer" class="win-inset px-1 py-0.5 text-xs w-36 bg-white font-mono"/>
+            </div>
+          </div>
+          <div class="flex gap-1.5">
+            <textarea id="forum-reply-content" rows="2" placeholder="Leave your wet slimy musings here..." class="win-inset flex-1 p-1 text-xs resize-none"></textarea>
+            <button class="win-button !py-1 px-4 font-bold text-xs bg-emerald-100" onclick="ForumEngine.postReply()">
+              Submit<br>Reply
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browser Status Footer -->
+      <div class="win-inset mt-1 px-2 py-0.5 bg-[#c0c0c0] text-[10px] text-gray-700 flex justify-between items-center">
+        <span id="browser-status">Document: Done • 28.8k baud modem connected</span>
+        <span class="font-mono text-emerald-800 font-bold">100% MOIST</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WINDOW 2: 3D Slug Lab (Dedicated 3D Voxel Laboratory) -->
+  <div id="win-sluglab" class="win-outset win-window z-15" style="top: 50px; left: 140px; width: 680px; height: 500px;">
+    <!-- Title Bar -->
+    <div class="title-bar-active h-6 px-1 flex items-center justify-between select-none cursor-move window-drag-handle">
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs">🔬</span>
+        <span class="font-bold text-xs">Slug Lab 3D - Gastropod Voxel Morphology Station</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="WinManager.minimize('win-sluglab')">_</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="WinManager.toggleMaximize('win-sluglab')">&#9633;</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold text-red-900" onclick="WinManager.close('win-sluglab')">&#10005;</button>
+      </div>
+    </div>
+
+    <!-- Lab Body -->
+    <div class="flex-1 bg-[#c0c0c0] p-1.5 flex flex-col md:flex-row gap-2 overflow-hidden">
+      <!-- 3D Canvas Viewport -->
+      <div class="flex-1 win-inset bg-black flex flex-col relative overflow-hidden min-h-[220px]">
+        <div class="absolute top-2 left-2 z-10 flex gap-2">
+          <span class="text-[10px] font-mono text-emerald-400 bg-black/70 px-1 border border-emerald-600">3D ENGINE: VOXEL-95</span>
+          <span id="lab-fps-counter" class="text-[10px] font-mono text-yellow-300 bg-black/70 px-1 border border-yellow-600">30.0 FPS</span>
+        </div>
+
+        <canvas id="slugLabCanvas" width="360" height="300" class="w-full h-full pixelated cursor-grab active:cursor-grabbing block"></canvas>
+
+        <div class="absolute bottom-1 inset-x-1 bg-black/80 px-2 py-1 text-[10px] font-mono text-emerald-300 flex justify-between border-t border-emerald-900">
+          <span id="lab-species-tag">Arion vulgaris (Garden Brown)</span>
+          <span id="lab-pore-status">Breathing Pore: Dilated (0.4 Hz)</span>
+        </div>
+      </div>
+
+      <!-- Controls & Diagnostics Sidebar -->
+      <div class="w-full md:w-64 win-outset p-2 flex flex-col gap-2 shrink-0 bg-[#c0c0c0]">
+        <div class="font-bold text-xs border-b border-[#808080] pb-1 text-blue-900 flex justify-between">
+          <span>Morphology Settings</span>
+          <button class="win-button text-[10px] !py-0 !px-1" onclick="SlimeAudio.squelch()">🔊 Sound</button>
+        </div>
+
+        <!-- Species Selector -->
+        <div class="space-y-1">
+          <label class="block text-[11px] font-bold">Species Skin Color:</label>
+          <select id="slug-skin-select" class="win-inset w-full p-1 text-xs bg-white" onchange="Slug3DEngine.setPalette(this.value)">
+            <option value="0">Arion vulgaris (Garden Brown)</option>
+            <option value="1">Ariolimax columbianus (Banana Slug)</option>
+            <option value="2">Limax maximus (Leopard Spotted)</option>
+            <option value="3">Gastropoda Cybernetica (Neon Bio-Slime)</option>
+            <option value="4">Pseudunio Alba (Ghost Slug)</option>
+          </select>
+        </div>
+
+        <!-- Locomotion Speed -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-[11px]">
+            <span class="font-bold">Locomotion Velocity:</span>
+            <span id="slug-speed-display" class="font-mono text-blue-900 font-bold">1.0x</span>
+          </div>
+          <div class="grid grid-cols-4 gap-1">
+            <button class="win-button text-[10px] !py-1" onclick="Slug3DEngine.setSpeed(0)">Pause</button>
+            <button class="win-button text-[10px] !py-1 active" id="btn-speed-crawl" onclick="Slug3DEngine.setSpeed(1)">Crawl</button>
+            <button class="win-button text-[10px] !py-1" id="btn-speed-glide" onclick="Slug3DEngine.setSpeed(2)">Glide</button>
+            <button class="win-button text-[10px] !py-1 text-amber-800 font-bold" id="btn-speed-turbo" onclick="Slug3DEngine.setSpeed(3.5)">Turbo</button>
+          </div>
+        </div>
+
+        <!-- Diagnostic Metrics Box -->
+        <div class="win-inset bg-white p-2 text-[10px] font-mono space-y-1 flex-1 overflow-y-auto">
+          <div class="text-blue-950 font-bold pb-0.5 border-b border-gray-300">BIO-TELEMETRY</div>
+          <div class="flex justify-between"><span>Hydration:</span><span class="text-emerald-700 font-bold">99.4% SATURATED</span></div>
+          <div class="flex justify-between"><span>Mucus Yield:</span><span class="text-blue-700">12.8 ml/hr</span></div>
+          <div class="flex justify-between"><span>Radula Teeth:</span><span>27,000 intact</span></div>
+          <div class="flex justify-between"><span>Tentacle Optic:</span><span class="text-purple-800">Tracking Cursor</span></div>
+          <div class="flex justify-between"><span>Soil Temp:</span><span>14.2 °C (Damp)</span></div>
+        </div>
+
+        <!-- Render toggles -->
+        <div class="space-y-1 pt-1 border-t border-[#808080]">
+          <div class="flex gap-1">
+            <button class="win-button flex-1 text-[10px] !py-1" onclick="Slug3DEngine.toggleWireframe()">
+              Wireframe: <span id="wireframe-status" class="font-bold text-gray-700 ml-1">OFF</span>
+            </button>
+            <button class="win-button flex-1 text-[10px] !py-1" onclick="Slug3DEngine.toggleTrails()">
+              Trail: <span id="trail-status-lab" class="font-bold text-emerald-700 ml-1">ON</span>
+            </button>
+          </div>
+          <button class="win-button w-full text-xs font-bold bg-yellow-100 !py-1" onclick="triggerPneumostomePulse()">
+            💨 Pulse Breathing Pore (.WAV)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WINDOW 3: SlugSweeper Game (Minesweeper Clone) -->
+  <div id="win-slugsweeper" class="win-outset win-window z-15" style="top: 70px; left: 190px; width: 280px; height: 380px;">
+    <!-- Title Bar -->
+    <div class="title-bar-active h-6 px-1 flex items-center justify-between select-none cursor-move window-drag-handle">
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs">💣</span>
+        <span class="font-bold text-xs">SlugSweeper 95</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="WinManager.minimize('win-slugsweeper')">_</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="WinManager.close('win-slugsweeper')">&#10005;</button>
+      </div>
+    </div>
+
+    <!-- Sweeper Game Menu -->
+    <div class="bg-[#c0c0c0] border-b border-[#808080] px-1 py-0.5 flex gap-3 text-xs select-none">
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer" onclick="SweeperEngine.restart()">New Game</div>
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer" onclick="SweeperEngine.toggleFlagMode()">
+        Flag Mode: <span id="flag-mode-status" class="font-bold">OFF</span>
+      </div>
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer" onclick="SweeperEngine.showHelp()">Help</div>
+    </div>
+
+    <!-- Sweeper Body -->
+    <div class="p-3 bg-[#c0c0c0] flex flex-col items-center flex-1">
+      <!-- Game Top Score Bar -->
+      <div class="win-inset-deep bg-[#c0c0c0] p-1.5 flex items-center justify-between w-full mb-3">
+        <!-- Salt Mine Counter -->
+        <div class="led-counter" id="sweeper-mines-count">010</div>
+
+        <!-- Smiley Face Reset Button -->
+        <button id="sweeper-smiley" class="win-button !p-1 text-lg leading-none" onclick="SweeperEngine.restart()" title="Click to restart">
+          🙂
+        </button>
+
+        <!-- Timer Counter -->
+        <div class="led-counter" id="sweeper-timer">000</div>
+      </div>
+
+      <!-- Minesweeper Grid Board -->
+      <div class="win-inset-deep p-1 bg-[#808080] inline-block">
+        <div id="sweeper-grid" class="grid grid-cols-9 gap-[1px] bg-[#808080]">
+          <!-- 9x9 tiles rendered via JavaScript -->
+        </div>
+      </div>
+
+      <!-- Instructions & Mobile Helper -->
+      <div class="text-[10px] text-gray-700 mt-2 text-center leading-tight">
+        Avoid table salt 🧂! Uncover damp mulch 🌱.<br>
+        <span class="font-bold">Tip:</span> Right-click or tap "Flag Mode" to plant Lettuce flags 🥬.
+      </div>
+    </div>
+  </div>
+
+  <!-- WINDOW 4: SlimePad (Working Notepad Text Editor) -->
+  <div id="win-slimepad" class="win-outset win-window z-15" style="top: 100px; left: 240px; width: 440px; height: 350px;">
+    <!-- Title Bar -->
+    <div class="title-bar-active h-6 px-1 flex items-center justify-between select-none cursor-move window-drag-handle">
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs">📝</span>
+        <span class="font-bold text-xs" id="slimepad-title">slug_diary_1997.txt - SlimePad</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="WinManager.minimize('win-slimepad')">_</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="WinManager.toggleMaximize('win-slimepad')">&#9633;</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold text-red-900" onclick="WinManager.close('win-slimepad')">&#10005;</button>
+      </div>
+    </div>
+
+    <!-- SlimePad Menu Bar -->
+    <div class="bg-[#c0c0c0] border-b border-[#808080] px-1 py-0.5 flex gap-3 text-xs select-none">
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer" onclick="SlimePadEngine.newFile()"><u>N</u>ew</div>
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer" onclick="SlimePadEngine.saveFile()"><u>S</u>ave As...</div>
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer" onclick="SlimePadEngine.insertMoistureStamp()">Time/<u>D</u>ate</div>
+      <div class="hover:bg-[#000080] hover:text-white px-1 cursor-pointer" onclick="SlimePadEngine.addSecretSlugPoem()">Poem</div>
+    </div>
+
+    <!-- Text Area -->
+    <div class="flex-1 p-0.5 bg-white win-inset">
+      <textarea id="slimepad-textarea" class="w-full h-full p-2 font-mono text-xs outline-none border-none resize-none leading-relaxed text-black" spellcheck="false"></textarea>
+    </div>
+
+    <!-- SlimePad Footer -->
+    <div class="win-inset px-2 py-0.5 bg-[#c0c0c0] text-[10px] text-gray-700 flex justify-between">
+      <span id="slimepad-status">Lines: 14 | Encoding: ANSI-MOLLUSK</span>
+      <span>100% Retentive</span>
+    </div>
+  </div>
+
+  <!-- WINDOW 5: SaltShield 95 Antivirus System -->
+  <div id="win-saltshield" class="win-outset win-window z-15" style="top: 130px; left: 290px; width: 420px; height: 340px;">
+    <!-- Title Bar -->
+    <div class="title-bar-active h-6 px-1 flex items-center justify-between select-none cursor-move window-drag-handle">
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs">🛡️</span>
+        <span class="font-bold text-xs">SaltShield 95 Pro - Sodium Detection Engine</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="WinManager.minimize('win-saltshield')">_</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold text-red-900" onclick="WinManager.close('win-saltshield')">&#10005;</button>
+      </div>
+    </div>
+
+    <!-- Shield Body -->
+    <div class="p-3 bg-[#c0c0c0] flex-1 flex flex-col gap-2">
+      <div class="flex items-center gap-3 bg-white win-inset p-2">
+        <div class="text-3xl animate-bounce">🛡️</div>
+        <div>
+          <div class="font-bold text-xs text-blue-900">SaltShield Gastropod Defense System</div>
+          <div class="text-[10px] text-gray-600">Database Definitions: Oct 1997 • Active Real-Time Protection</div>
+        </div>
+      </div>
+
+      <!-- Scan Progress Section -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-xs">
+          <span class="font-bold" id="saltshield-status-label">Scanner Idle: Ready for Lawn Inspection</span>
+          <span id="saltshield-pct" class="font-mono">0%</span>
+        </div>
+        <!-- Win95 Progress Bar Inset -->
+        <div class="win-inset h-5 bg-[#dfdfdf] p-0.5 flex overflow-hidden">
+          <div id="saltshield-bar" class="h-full bg-[#000080] transition-all duration-100 flex items-center justify-center text-[10px] text-white font-mono" style="width: 0%"></div>
+        </div>
+        <div class="text-[10px] text-gray-600 font-mono truncate" id="saltshield-filepath">Scanning target: C:\GARDEN_BEDS\*.*</div>
+      </div>
+
+      <!-- Threat Log Box -->
+      <div class="win-inset bg-white p-1.5 text-[10px] font-mono flex-1 overflow-y-auto space-y-0.5" id="saltshield-logs">
+        <div class="text-green-700">[SYSTEM] SaltShield 95 initialized successfully.</div>
+        <div class="text-gray-500">[STATUS] No active sodium breaches detected on pedal gland.</div>
+      </div>
+
+      <!-- Control Buttons -->
+      <div class="flex justify-between items-center pt-1 border-t border-[#808080]">
+        <button class="win-button text-xs font-bold !py-1 px-3 bg-blue-100" id="btn-start-scan" onclick="SaltShieldEngine.startScan()">
+          🔍 Scan Garden Bed
+        </button>
+        <button class="win-button text-xs !py-1 px-3" onclick="SaltShieldEngine.quarantineThreats()">
+          🗄️ Quarantine Traps
+        </button>
+        <button class="win-button text-xs !py-1 px-3" onclick="SaltShieldEngine.deployMucusFoam()">
+          💦 Mucus Foam
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WINDOW 6: Slime Soundboard (Web Audio Synthesizer) -->
+  <div id="win-soundboard" class="win-outset win-window z-15" style="top: 150px; left: 340px; width: 440px; height: 380px;">
+    <!-- Title Bar -->
+    <div class="title-bar-active h-6 px-1 flex items-center justify-between select-none cursor-move window-drag-handle">
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs">🔊</span>
+        <span class="font-bold text-xs">SlimeSound 3.11 - Procedural DSP Synthesizer</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="WinManager.minimize('win-soundboard')">_</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold text-red-900" onclick="WinManager.close('win-soundboard')">&#10005;</button>
+      </div>
+    </div>
+
+    <!-- Soundboard Body -->
+    <div class="p-2.5 bg-[#c0c0c0] flex-1 flex flex-col gap-2">
+      <!-- Oscilloscope Visualizer Box -->
+      <div class="win-inset bg-black p-1 flex flex-col items-center">
+        <div class="w-full flex justify-between px-1 text-[9px] font-mono text-green-400">
+          <span>OSCILLOSCOPE: LIVE DSP MUCUS OUTPUT</span>
+          <span>44.1 kHz 16-BIT</span>
+        </div>
+        <canvas id="soundboardOscilloscope" width="400" height="70" class="w-full h-16 bg-black block"></canvas>
+      </div>
+
+      <!-- Big Highlight Button -->
+      <button class="win-button !py-2.5 bg-emerald-200 hover:bg-emerald-300 text-xs font-bold text-emerald-950 flex items-center justify-center gap-2 border-2" onclick="SlimeAudio.squelch()">
+        <span class="text-lg">🔊</span>
+        <span class="tracking-wider uppercase">PRIMARY WET SQUELCH (.WAV)</span>
+      </button>
+
+      <!-- Sound Pads Grid -->
+      <div class="grid grid-cols-3 gap-1.5 text-xs">
+        <button class="win-button !py-2 flex flex-col items-center" onclick="SlimeAudio.pop()">
+          <span class="text-base">🫧</span>
+          <span class="font-bold">Suction Pop</span>
+        </button>
+        <button class="win-button !py-2 flex flex-col items-center" onclick="SlimeAudio.chomp()">
+          <span class="text-base">🥬</span>
+          <span class="font-bold">Radula Chomp</span>
+        </button>
+        <button class="win-button !py-2 flex flex-col items-center" onclick="SlimeAudio.splat()">
+          <span class="text-base">💦</span>
+          <span class="font-bold">Mucus Splat</span>
+        </button>
+        <button class="win-button !py-2 flex flex-col items-center" onclick="SlimeAudio.glide()">
+          <span class="text-base">🐌</span>
+          <span class="font-bold">Moist Glide</span>
+        </button>
+        <button class="win-button !py-2 flex flex-col items-center text-red-900 font-bold" onclick="SlimeAudio.sizzle()">
+          <span class="text-base">⚠️</span>
+          <span>Salt Sizzle</span>
+        </button>
+        <button class="win-button !py-2 flex flex-col items-center text-blue-900 font-bold" onclick="SlimeAudio.bubble()">
+          <span class="text-base">🧪</span>
+          <span>Hydration Gurgle</span>
+        </button>
+      </div>
+
+      <!-- Synthesizer Parameter Sliders -->
+      <div class="win-inset bg-white p-2 text-[10px] space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span>Resonance Q Filter:</span>
+          <input type="range" min="2" max="25" value="14" id="slider-res" class="w-32 cursor-pointer" oninput="SlimeAudio.setResonance(this.value)">
+        </div>
+        <div class="flex items-center justify-between">
+          <span>Pitch Mod Base (Hz):</span>
+          <input type="range" min="80" max="600" value="280" id="slider-pitch" class="w-32 cursor-pointer" oninput="SlimeAudio.setPitch(this.value)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WINDOW 7: Compost Bin (Recycle Bin) -->
+  <div id="win-compost" class="win-outset win-window z-15" style="top: 170px; left: 390px; width: 360px; height: 290px;">
+    <!-- Title Bar -->
+    <div class="title-bar-active h-6 px-1 flex items-center justify-between select-none cursor-move window-drag-handle">
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs">🍂</span>
+        <span class="font-bold text-xs">Compost Bin - Organic Detritus</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="WinManager.minimize('win-compost')">_</button>
+        <button class="win-button w-4 h-4 !p-0 font-bold text-red-900" onclick="WinManager.close('win-compost')">&#10005;</button>
+      </div>
+    </div>
+
+    <!-- Compost Body -->
+    <div class="p-2 bg-[#c0c0c0] flex-1 flex flex-col gap-2">
+      <div class="win-inset bg-white flex-1 p-2 overflow-y-auto space-y-2 text-xs" id="compost-items-list">
+        <div class="flex items-center gap-2 p-1 hover:bg-[#000080] hover:text-white cursor-pointer select-none">
+          <span class="text-lg">🍎</span>
+          <div>
+            <div class="font-bold">Overripe Honeycrisp Core.del</div>
+            <div class="text-[10px] text-gray-500">Fermentation Grade: 94% • High Sugar</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 p-1 hover:bg-[#000080] hover:text-white cursor-pointer select-none">
+          <span class="text-lg">🥬</span>
+          <div>
+            <div class="font-bold">Soggy Romaine Foliage_v2.tmp</div>
+            <div class="text-[10px] text-gray-500">Tender chlorophyll cells • 12 KB</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 p-1 hover:bg-[#000080] hover:text-white cursor-pointer select-none">
+          <span class="text-lg">🍄</span>
+          <div>
+            <div class="font-bold">Lawn Morel Stalk (Spores).dat</div>
+            <div class="text-[10px] text-gray-500">Fine gourmet snack for radula • 48 KB</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <span class="text-[11px] text-gray-700" id="compost-count-label">3 items (Optimal Feast)</span>
+        <div class="flex gap-1">
+          <button class="win-button text-xs font-bold" onclick="emptyCompostBin()">Empty Compost</button>
+          <button class="win-button text-xs" onclick="feedFromCompost()">Digest All (.WAV)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: New Forum Topic Dialog -->
+  <div id="modal-newtopic" class="hidden fixed inset-0 bg-black/40 z-[9990] flex items-center justify-center p-3">
+    <div class="win-outset bg-[#c0c0c0] w-full max-w-md p-1 shadow-2xl">
+      <div class="title-bar-active h-6 px-1 flex items-center justify-between text-xs">
+        <span class="font-bold">Compose New Discussion Topic - SLUG-NET 95</span>
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="ForumEngine.closeNewTopicModal()">&#10005;</button>
+      </div>
+      <div class="p-3 space-y-2 text-xs">
+        <div>
+          <label class="block font-bold mb-0.5">Gastropod Handle:</label>
+          <input type="text" id="newtopic-author" value="SlimeAuthor_97" class="win-inset w-full p-1 bg-white font-mono"/>
+        </div>
+        <div>
+          <label class="block font-bold mb-0.5">Category:</label>
+          <select id="newtopic-category" class="win-inset w-full p-1 bg-white">
+            <option value="hydration">💧 Hydration & Moisture Tactics</option>
+            <option value="defense">⚠️ Salt Defense Protocols</option>
+            <option value="buffet">🥬 Garden Buffet & Hosta Reviews</option>
+            <option value="radula">🦷 Radula Care & Rasping</option>
+            <option value="all">🐌 Off-Topic Slime Chat</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold mb-0.5">Topic Title:</label>
+          <input type="text" id="newtopic-title" placeholder="e.g., Best mulch varieties for speed gliding?" class="win-inset w-full p-1 bg-white"/>
+        </div>
+        <div>
+          <label class="block font-bold mb-0.5">Body Message:</label>
+          <textarea id="newtopic-body" rows="4" placeholder="Express your gelatinous reflections..." class="win-inset w-full p-1 bg-white"></textarea>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 p-2 border-t border-[#808080]">
+        <button class="win-button px-4 py-1 font-bold text-xs" onclick="ForumEngine.submitNewTopic()">Post Topic</button>
+        <button class="win-button px-4 py-1 text-xs" onclick="ForumEngine.closeNewTopicModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Authentic Windows 95 Shut Down Dialog -->
+  <div id="modal-shutdown" class="hidden fixed inset-0 bg-black/40 z-[9995] flex items-center justify-center p-3">
+    <div class="win-outset bg-[#c0c0c0] w-full max-w-sm p-1 shadow-2xl">
+      <div class="title-bar-active h-6 px-1 flex items-center justify-between text-xs">
+        <span class="font-bold">Shut Down Gastropod OS</span>
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="closeShutdownModal()">&#10005;</button>
+      </div>
+      <div class="p-4 flex gap-3 items-center">
+        <div class="text-3xl">🛑</div>
+        <div class="text-xs space-y-1">
+          <p class="font-bold">What would you like the slug to do?</p>
+          <label class="block"><input type="radio" name="sd-opt" checked> Crawl into damp soil for the winter</label>
+          <label class="block"><input type="radio" name="sd-opt"> Restart SLUG OS in MS-DOS Slime Mode</label>
+          <label class="block"><input type="radio" name="sd-opt"> Secrete dormancy epiphragm</label>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 p-2 border-t border-[#808080]">
+        <button class="win-button px-4 py-1 font-bold" onclick="executeShutdown()">Yes</button>
+        <button class="win-button px-4 py-1" onclick="closeShutdownModal()">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTHENTIC SHUT DOWN BLACK SCREEN -->
+  <div id="screen-safe-shutdown" class="hidden fixed inset-0 bg-black z-[99999] flex flex-col items-center justify-center text-center p-4 select-none">
+    <div class="text-orange-500 font-bold text-2xl md:text-3xl font-mono tracking-widest mb-4">
+      It's now safe to crawl into the soil.
+    </div>
+    <div class="text-gray-500 font-mono text-xs mb-8">
+      SLUG OS 95 has parked all radula heads. Moisture levels preserved.
+    </div>
+    <button class="win-button px-6 py-2 font-bold text-xs" onclick="rebootSlugOS()">
+      🐌 Awaken Gastropod (Reboot)
+    </button>
+  </div>
+
+  <!-- MODAL: About Dialog -->
+  <div id="modal-about" class="hidden fixed inset-0 bg-black/40 z-[9990] flex items-center justify-center p-3">
+    <div class="win-outset bg-[#c0c0c0] w-full max-w-xs p-1 shadow-2xl">
+      <div class="title-bar-active h-6 px-1 flex items-center justify-between text-xs">
+        <span class="font-bold">About SLUG OS 95</span>
+        <button class="win-button w-4 h-4 !p-0 font-bold" onclick="closeAboutDialog()">&#10005;</button>
+      </div>
+      <div class="p-4 text-xs space-y-2 text-center">
+        <div class="text-3xl animate-bounce">🐌</div>
+        <div class="font-bold text-sm">SLUG OS 95 [Version 4.00.950]</div>
+        <p class="text-gray-700 text-[11px]">The ultimate 32-bit operating environment crafted exclusively for mollusks and slugs of the class Gastropoda.</p>
+        <p class="text-[10px] text-gray-500 font-mono">100% Web Audio Synthesized • True Voxel Rendering</p>
+      </div>
+      <div class="p-2 border-t border-[#808080] flex justify-center">
+        <button class="win-button px-6 py-0.5 font-bold" onclick="closeAboutDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WINDOWS 95 BOTTOM TASKBAR -->
+  <div id="taskbar" class="absolute bottom-0 inset-x-0 h-7 bg-[#c0c0c0] win-outset flex items-center justify-between px-1 z-[9000] select-none">
+    
+    <!-- Left Section: Start Button & Quick Launches -->
+    <div class="flex items-center gap-1 h-full py-0.5">
+      <!-- Classic Windows 95 Start Button -->
+      <button id="start-button" class="win-button font-bold text-xs h-full px-2 gap-1.5 flex items-center" onclick="toggleStartMenu()">
+        <!-- Windows 95 4-color flag SVG with slug touch -->
+        <svg class="w-4 h-4" viewBox="0 0 16 16">
+          <path d="M1 2 L7 1 L7 7 L1 7 Z" fill="#ff0000"/>
+          <path d="M8 1 L15 2 L15 7 L8 7 Z" fill="#00aa00"/>
+          <path d="M1 8 L7 8 L7 14 L1 15 Z" fill="#0000ff"/>
+          <path d="M8 8 L15 8 L15 15 L8 14 Z" fill="#ffaa00"/>
+        </svg>
+        <span class="font-black text-[12px] tracking-wide">Start</span>
+      </button>
+
+      <!-- Quick Launch Buttons -->
+      <div class="h-4 w-[1px] bg-[#808080] mx-0.5"></div>
+      <button class="win-button !p-0.5 w-5 h-5" title="Open SLUG-NET" onclick="WinManager.open('win-slugnet')">🌐</button>
+      <button class="win-button !p-0.5 w-5 h-5" title="Open 3D Slug Lab" onclick="WinManager.open('win-sluglab')">🔬</button>
+      <button class="win-button !p-0.5 w-5 h-5" title="Slime Soundboard" onclick="WinManager.open('win-soundboard')">🔊</button>
+      <div class="h-4 w-[1px] bg-[#808080] mx-0.5"></div>
+
+      <!-- Open Window Tabs on Taskbar -->
+      <div id="taskbar-tabs-container" class="flex items-center gap-1 overflow-x-auto">
+        <!-- Rendered dynamically by WinManager -->
+      </div>
+    </div>
+
+    <!-- Right Section: System Tray -->
+    <div class="win-inset h-full py-0.5 px-2 flex items-center gap-2 bg-[#c0c0c0] text-xs">
+      <!-- Desktop Special Effects Controls in Tray -->
+      <button class="win-button !p-0.5 text-[10px]" title="Toggle Slime Mouse Cursor Trail" onclick="toggleSlimeCursorTrail()" id="tray-btn-trail">
+        💧 <span class="hidden sm:inline">Trail</span>
+      </button>
+      <button class="win-button !p-0.5 text-[10px]" title="Release Wandering Desktop Slugs" onclick="spawnDesktopSlug()">
+        🐌 <span class="hidden sm:inline">+Slug</span>
+      </button>
+      <button class="win-button !p-0.5 text-[10px]" title="Desktop Slime Splat" onclick="triggerDesktopSplat()">
+        💦 <span class="hidden sm:inline">Splat</span>
+      </button>
+
+      <!-- Audio Mute / Sound Test Icon -->
+      <button class="cursor-pointer" onclick="SlimeAudio.squelch()" title="Primary Squelch Sound">
+        <svg class="w-3.5 h-3.5 text-black" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"/>
+        </svg>
+      </button>
+
+      <!-- Slime Hydration Meter -->
+      <div class="flex items-center gap-1 font-mono text-[10px] text-emerald-800 font-bold" title="Ambient Dew / Slime Hydration">
+        <span>💧99%</span>
+      </div>
+
+      <!-- Real-time Clock -->
+      <span id="taskbar-clock" class="font-mono text-[11px]">07:15 PM</span>
+    </div>
+  </div>
+
+  <!-- START MENU POPUP -->
+  <div id="start-menu" class="hidden absolute bottom-7 left-1 w-56 win-outset bg-[#c0c0c0] flex z-[9500] shadow-2xl">
+    <!-- Blue Vertical Windows 95 Side Banner -->
+    <div class="w-7 bg-[#000080] flex items-end justify-center pb-2">
+      <span class="text-white font-black text-sm tracking-widest -rotate-90 origin-bottom-left transform translate-x-4 mb-3">SLUG&nbsp;OS&nbsp;95</span>
+    </div>
+
+    <!-- Menu Items List -->
+    <div class="flex-1 py-1 text-xs">
+      <!-- Programs item with flyout indicator -->
+      <div class="flex items-center justify-between px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer group" onclick="WinManager.open('win-slugnet'); toggleStartMenu();">
+        <div class="flex items-center gap-2">
+          <span>🌐</span>
+          <span class="font-bold">SLUG-NET Explorer</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="WinManager.open('win-sluglab'); toggleStartMenu();">
+        <span>🔬</span>
+        <span>Slug Lab 3D Station</span>
+      </div>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="WinManager.open('win-slugsweeper'); toggleStartMenu();">
+        <span>💣</span>
+        <span>SlugSweeper 95</span>
+      </div>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="WinManager.open('win-slimepad'); toggleStartMenu();">
+        <span>📝</span>
+        <span>SlimePad Text Editor</span>
+      </div>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer text-blue-900 hover:text-white" onclick="WinManager.open('win-saltshield'); toggleStartMenu();">
+        <span>🛡️</span>
+        <span>SaltShield Antivirus</span>
+      </div>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="WinManager.open('win-soundboard'); toggleStartMenu();">
+        <span>🔊</span>
+        <span>Slime Soundboard DSP</span>
+      </div>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="WinManager.open('win-compost'); toggleStartMenu();">
+        <span>🍂</span>
+        <span>Compost Bin</span>
+      </div>
+
+      <div class="h-[1px] bg-[#808080] my-1 mx-2"></div>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer" onclick="showAboutDialog(); toggleStartMenu();">
+        <span>❓</span>
+        <span>About SLUG OS...</span>
+      </div>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 hover:bg-[#000080] hover:text-white cursor-pointer text-red-900 hover:text-white font-bold" onclick="openShutdownModal(); toggleStartMenu();">
+        <span>🛑</span>
+        <span>Shut Down Slug OS...</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+     * 1. PROCEDURAL SLIME AUDIO SYNTHESIZER (Web Audio API - 100% Self-Contained)
+     * ========================================================================= */
+    const SlimeAudio = {
+      ctx: null,
+      analyser: null,
+      resVal: 14,
+      pitchVal: 280,
+
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+            this.analyser = this.ctx.createAnalyser();
+            this.analyser.fftSize = 128;
+            this.analyser.connect(this.ctx.destination);
+            this.startOscilloscope();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+
+      setResonance(val) { this.resVal = parseFloat(val); },
+      setPitch(val) { this.pitchVal = parseFloat(val); },
+
+      // 1. Wet Squelch
+      squelch() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        // Downward swept resonant oscillator
+        const osc = this.ctx.createOscillator();
+        const oscGain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        filter.type = 'lowpass';
+        filter.Q.value = this.resVal;
+        filter.frequency.setValueAtTime(1400, now);
+        filter.frequency.exponentialRampToValueAtTime(160, now + 0.28);
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(this.pitchVal, now);
+        osc.frequency.exponentialRampToValueAtTime(60, now + 0.28);
+
+        oscGain.gain.setValueAtTime(0.001, now);
+        oscGain.gain.linearRampToValueAtTime(0.5, now + 0.04);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+        osc.connect(filter);
+        filter.connect(oscGain);
+        oscGain.connect(this.analyser);
+
+        osc.start(now);
+        osc.stop(now + 0.3);
+
+        // Modulated noise burst for wet droplet texture
+        const bufSize = this.ctx.sampleRate * 0.2;
+        const noiseBuf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+        const data = noiseBuf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = noiseBuf;
+
+        const noiseFilter = this.ctx.createBiquadFilter();
+        noiseFilter.type = 'bandpass';
+        noiseFilter.Q.value = 9;
+        noiseFilter.frequency.setValueAtTime(2800, now);
+        noiseFilter.frequency.exponentialRampToValueAtTime(400, now + 0.2);
+
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.001, now);
+        noiseGain.gain.linearRampToValueAtTime(0.4, now + 0.03);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(this.analyser);
+
+        noise.start(now);
+        noise.stop(now + 0.22);
+      },
+
+      // 2. Suction Pop
+      pop() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(650, now);
+        osc.frequency.exponentialRampToValueAtTime(110, now + 0.12);
+
+        gain.gain.setValueAtTime(0.6, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+        osc.connect(gain);
+        gain.connect(this.analyser);
+        osc.start(now);
+        osc.stop(now + 0.13);
+      },
+
+      // 3. Radula Chomp (Rasping on lettuce)
+      chomp() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        for (let i = 0; i < 3; i++) {
+          const t = now + (i * 0.06);
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(700 + Math.random() * 500, t);
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 1700;
+          filter.Q.value = 6;
+
+          gain.gain.setValueAtTime(0.3, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.analyser);
+          osc.start(t);
+          osc.stop(t + 0.05);
+        }
+      },
+
+      // 4. Mucus Splat
+      splat() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(35, now + 0.35);
+
+        gain.gain.setValueAtTime(0.7, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        osc.connect(gain);
+        gain.connect(this.analyser);
+        osc.start(now);
+        osc.stop(now + 0.36);
+      },
+
+      // 5. Moist Glide (Sliding locomotion)
+      glide() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        for (let i = 0; i < 2; i++) {
+          const t = now + (i * 0.1);
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(420 - (i * 80), t);
+          osc.frequency.exponentialRampToValueAtTime(140, t + 0.1);
+
+          gain.gain.setValueAtTime(0.3, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+
+          osc.connect(gain);
+          gain.connect(this.analyser);
+          osc.start(t);
+          osc.stop(t + 0.11);
+        }
+      },
+
+      // 6. Salt Sizzle (Danger warning crackle)
+      sizzle() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [520, 880, 1200].forEach(freq => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+          osc.connect(gain);
+          gain.connect(this.analyser);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        });
+      },
+
+      // 7. Hydration Gurgle
+      bubble() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        for (let i = 0; i < 4; i++) {
+          const t = now + (i * 0.05);
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(300 + (i * 120), t);
+          osc.frequency.exponentialRampToValueAtTime(600 + (i * 100), t + 0.04);
+          gain.gain.setValueAtTime(0.2, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+          osc.connect(gain);
+          gain.connect(this.analyser);
+          osc.start(t);
+          osc.stop(t + 0.05);
+        }
+      },
+
+      // Oscilloscope animation loop on Soundboard canvas
+      startOscilloscope() {
+        const oscCanvas = document.getElementById('soundboardOscilloscope');
+        if (!oscCanvas) return;
+        const oCtx = oscCanvas.getContext('2d');
+
+        const drawLoop = () => {
+          requestAnimationFrame(drawLoop);
+          if (!this.analyser) return;
+
+          const bufferLen = this.analyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLen);
+          this.analyser.getByteTimeDomainData(dataArray);
+
+          oCtx.fillStyle = '#000000';
+          oCtx.fillRect(0, 0, oscCanvas.width, oscCanvas.height);
+
+          oCtx.lineWidth = 2;
+          oCtx.strokeStyle = '#22c55e'; // Phosphor green
+          oCtx.beginPath();
+
+          const sliceWidth = oscCanvas.width / bufferLen;
+          let x = 0;
+
+          for (let i = 0; i < bufferLen; i++) {
+            const v = dataArray[i] / 128.0;
+            const y = (v * oscCanvas.height) / 2;
+            if (i === 0) oCtx.moveTo(x, y);
+            else oCtx.lineTo(x, y);
+            x += sliceWidth;
+          }
+
+          oCtx.lineTo(oscCanvas.width, oscCanvas.height / 2);
+          oCtx.stroke();
+        };
+        drawLoop();
+      }
+    };
+
+    /* =========================================================================
+     * 2. WINDOW MANAGER (WinManager: Draggable, Resizable, Active Stacking)
+     * ========================================================================= */
+    const WinManager = {
+      highestZ: 30,
+      activeWindowId: null,
+
+      init() {
+        // Attach drag handlers to all window headers
+        document.querySelectorAll('.win-window').forEach(win => {
+          const header = win.querySelector('.window-drag-handle');
+          if (header) {
+            this.makeDraggable(win, header);
+          }
+          win.addEventListener('mousedown', () => this.bringToFront(win.id));
+          win.addEventListener('touchstart', () => this.bringToFront(win.id), { passive: true });
+        });
+        this.renderTaskbarTabs();
+      },
+
+      bringToFront(winId) {
+        const win = document.getElementById(winId);
+        if (!win || win.classList.contains('hidden')) return;
+
+        this.highestZ += 1;
+        win.style.zIndex = this.highestZ;
+        this.activeWindowId = winId;
+
+        // Update headers to active gradient vs inactive gray
+        document.querySelectorAll('.win-window').forEach(w => {
+          const hdr = w.querySelector('.window-drag-handle');
+          if (!hdr) return;
+          if (w.id === winId) {
+            hdr.classList.remove('title-bar-inactive');
+            hdr.classList.add('title-bar-active');
+          } else {
+            hdr.classList.remove('title-bar-active');
+            hdr.classList.add('title-bar-inactive');
+          }
+        });
+        this.renderTaskbarTabs();
+      },
+
+      open(winId) {
+        const win = document.getElementById(winId);
+        if (!win) return;
+        win.classList.remove('hidden');
+        win.style.display = 'flex';
+        this.bringToFront(winId);
+        SlimeAudio.squelch();
+        this.renderTaskbarTabs();
+      },
+
+      close(winId) {
+        const win = document.getElementById(winId);
+        if (!win) return;
+        win.classList.add('hidden');
+        win.style.display = 'none';
+        SlimeAudio.pop();
+        this.renderTaskbarTabs();
+      },
+
+      minimize(winId) {
+        const win = document.getElementById(winId);
+        if (!win) return;
+        win.classList.add('hidden');
+        win.style.display = 'none';
+        SlimeAudio.glide();
+        this.renderTaskbarTabs();
+      },
+
+      toggleMaximize(winId) {
+        const win = document.getElementById(winId);
+        if (!win) return;
+        win.classList.toggle('maximized');
+        SlimeAudio.pop();
+      },
+
+      toggleFromTaskbar(winId) {
+        const win = document.getElementById(winId);
+        if (!win) return;
+        if (win.classList.contains('hidden') || win.style.display === 'none') {
+          this.open(winId);
+        } else if (this.activeWindowId === winId) {
+          this.minimize(winId);
+        } else {
+          this.bringToFront(winId);
+        }
+      },
+
+      makeDraggable(elm, handle) {
+        let posX = 0, posY = 0, mouseX = 0, mouseY = 0;
+
+        const onMouseDown = (e) => {
+          if (elm.classList.contains('maximized')) return;
+          if (e.target.tagName === 'BUTTON') return;
+          e.preventDefault();
+          mouseX = e.clientX || (e.touches && e.touches[0].clientX);
+          mouseY = e.clientY || (e.touches && e.touches[0].clientY);
+
+          document.addEventListener('mousemove', onMouseMove);
+          document.addEventListener('mouseup', onMouseUp);
+          document.addEventListener('touchmove', onTouchMove, { passive: false });
+          document.addEventListener('touchend', onMouseUp);
+        };
+
+        const onMouseMove = (e) => {
+          e.preventDefault();
+          const cx = e.clientX;
+          const cy = e.clientY;
+          posX = mouseX - cx;
+          posY = mouseY - cy;
+          mouseX = cx;
+          mouseY = cy;
+
+          elm.style.top = Math.max(0, Math.min(window.innerHeight - 60, elm.offsetTop - posY)) + "px";
+          elm.style.left = Math.max(-200, Math.min(window.innerWidth - 60, elm.offsetLeft - posX)) + "px";
+        };
+
+        const onTouchMove = (e) => {
+          if (e.touches.length !== 1) return;
+          e.preventDefault();
+          const cx = e.touches[0].clientX;
+          const cy = e.touches[0].clientY;
+          posX = mouseX - cx;
+          posY = mouseY - cy;
+          mouseX = cx;
+          mouseY = cy;
+          elm.style.top = Math.max(0, Math.min(window.innerHeight - 60, elm.offsetTop - posY)) + "px";
+          elm.style.left = Math.max(-200, Math.min(window.innerWidth - 60, elm.offsetLeft - posX)) + "px";
+        };
+
+        const onMouseUp = () => {
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+          document.removeEventListener('touchmove', onTouchMove);
+          document.removeEventListener('touchend', onMouseUp);
+        };
+
+        handle.addEventListener('mousedown', onMouseDown);
+        handle.addEventListener('touchstart', onMouseDown, { passive: false });
+      },
+
+      renderTaskbarTabs() {
+        const container = document.getElementById('taskbar-tabs-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const windowDefs = [
+          { id: 'win-slugnet', title: 'SLUG-NET Explorer', icon: '🌐' },
+          { id: 'win-sluglab', title: 'Slug Lab 3D', icon: '🔬' },
+          { id: 'win-slugsweeper', title: 'SlugSweeper', icon: '💣' },
+          { id: 'win-slimepad', title: 'SlimePad', icon: '📝' },
+          { id: 'win-saltshield', title: 'SaltShield', icon: '🛡️' },
+          { id: 'win-soundboard', title: 'Soundboard', icon: '🔊' },
+          { id: 'win-compost', title: 'Compost Bin', icon: '🍂' }
+        ];
+
+        windowDefs.forEach(def => {
+          const win = document.getElementById(def.id);
+          if (!win) return;
+          const isClosed = win.classList.contains('hidden') || win.style.display === 'none';
+          const isActive = (this.activeWindowId === def.id && !isClosed);
+
+          if (!isClosed) {
+            const btn = document.createElement('button');
+            btn.className = `win-button h-full px-2 max-w-[150px] flex items-center gap-1 truncate ${isActive ? 'active font-bold' : ''}`;
+            btn.onclick = () => this.toggleFromTaskbar(def.id);
+            btn.innerHTML = `<span class="text-xs">${def.icon}</span><span class="truncate text-[11px]">${def.title}</span>`;
+            container.appendChild(btn);
+          }
+        });
+      }
+    };
+
+    /* =========================================================================
+     * 3. 3D VOXEL SLUG ENGINE (Rotating, Undulating, Eyestalk Tracking)
+     * ========================================================================= */
+    const Slug3DEngine = {
+      canvas: null,
+      ctx: null,
+      rotY: 0.7,
+      rotX: 0.22,
+      speed: 1.0,
+      wireframe: false,
+      trails: true,
+      currentPalette: 0,
+      cursorTargetX: 0,
+      cursorTargetY: 0,
+      pneumostomeScale: 1.0,
+
+      palettes: [
+        { name: "Garden Brown", body: "#8b5a2b", mantle: "#654321", belly: "#d2b48c", eyes: "#1e1308", hi: "#f5deb3", trail: "rgba(180, 240, 180, 0.6)" },
+        { name: "Banana Slug", body: "#eab308", mantle: "#ca8a04", belly: "#fef08a", eyes: "#451a03", hi: "#fef9c3", trail: "rgba(254, 240, 138, 0.7)" },
+        { name: "Leopard Spotted", body: "#c2b280", mantle: "#5c4033", belly: "#e8dcbe", eyes: "#000000", hi: "#ffffff", trail: "rgba(220, 245, 160, 0.7)" },
+        { name: "Neon Bio-Slime", body: "#10b981", mantle: "#047857", belly: "#6ee7b7", eyes: "#000000", hi: "#ecfdf5", trail: "rgba(52, 211, 153, 0.8)" },
+        { name: "Ghost Slug", body: "#f1f5f9", mantle: "#cbd5e1", belly: "#ffffff", eyes: "#475569", hi: "#ffffff", trail: "rgba(226, 232, 240, 0.7)" }
+      ],
+
+      voxels: [],
+
+      init() {
+        this.canvas = document.getElementById('slugLabCanvas');
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.buildVoxels();
+        this.setupInteractions();
+        this.startLoop();
+      },
+
+      setPalette(index) {
+        this.currentPalette = parseInt(index);
+        this.buildVoxels();
+        SlimeAudio.squelch();
+        const tag = document.getElementById('lab-species-tag');
+        if (tag) tag.innerText = this.palettes[this.currentPalette].name;
+      },
+
+      setSpeed(spd) {
+        this.speed = spd;
+        document.getElementById('slug-speed-display').innerText = spd + "x";
+        document.querySelectorAll('#btn-speed-crawl, #btn-speed-glide, #btn-speed-turbo').forEach(b => b.classList.remove('active'));
+        if (spd === 1) document.getElementById('btn-speed-crawl')?.classList.add('active');
+        if (spd === 2) document.getElementById('btn-speed-glide')?.classList.add('active');
+        if (spd > 2) document.getElementById('btn-speed-turbo')?.classList.add('active');
+        SlimeAudio.glide();
+      },
+
+      toggleWireframe() {
+        this.wireframe = !this.wireframe;
+        document.getElementById('wireframe-status').innerText = this.wireframe ? 'ON' : 'OFF';
+        SlimeAudio.pop();
+      },
+
+      toggleTrails() {
+        this.trails = !this.trails;
+        document.getElementById('trail-status-lab').innerText = this.trails ? 'ON' : 'OFF';
+        SlimeAudio.pop();
+      },
+
+      buildVoxels() {
+        this.voxels = [];
+        const pal = this.palettes[this.currentPalette];
+
+        // Construct 3D voxel anatomy
+        for (let z = -26; z <= 20; z += 2) {
+          let radX, radY;
+          let isMantle = false;
+
+          if (z < -10) {
+            // Tapered posterior foot
+            const t = (z - (-26)) / 16;
+            radX = Math.max(1, t * 5.5);
+            radY = Math.max(1, t * 3.8);
+          } else if (z >= -10 && z <= 8) {
+            // Mantle shield
+            isMantle = true;
+            radX = 6.8;
+            radY = 5.6;
+          } else {
+            // Anterior head section
+            radX = 4.5;
+            radY = 4.0;
+          }
+
+          for (let x = -Math.floor(radX); x <= Math.floor(radX); x += 2) {
+            for (let y = 0; y <= Math.floor(radY); y += 2) {
+              const nx = x / radX;
+              const ny = (y - 1) / radY;
+              if (nx * nx + ny * ny <= 1.05) {
+                let color = pal.body;
+                if (y <= 0) color = pal.belly;
+                else if (isMantle && (x * x + y * y > 12)) color = pal.mantle;
+
+                // Leopard spots morph
+                if (this.currentPalette === 2 && ((x * 5 + z * 3) % 4 === 0)) color = "#3e2723";
+
+                // Dorsal ridge specular highlight
+                if (y >= Math.floor(radY) - 1 && Math.abs(x) <= 1) color = pal.hi;
+
+                this.voxels.push({ x, y, z, color, baseZ: z, baseY: y, isMantle });
+              }
+            }
+          }
+        }
+
+        // Eyestalks (Superior tentacles)
+        for (let s = 1; s <= 6; s++) {
+          // Left stalk
+          this.voxels.push({
+            x: -2.8 - s * 0.45,
+            y: 4 + s * 1.2,
+            z: 18 + s * 0.8,
+            color: (s === 6) ? pal.eyes : pal.mantle,
+            baseZ: 18 + s * 0.8,
+            baseY: 4 + s * 1.2,
+            isEye: (s === 6),
+            stalkIndex: s
+          });
+          // Right stalk
+          this.voxels.push({
+            x: 2.8 + s * 0.45,
+            y: 4 + s * 1.2,
+            z: 18 + s * 0.8,
+            color: (s === 6) ? pal.eyes : pal.mantle,
+            baseZ: 18 + s * 0.8,
+            baseY: 4 + s * 1.2,
+            isEye: (s === 6),
+            stalkIndex: s
+          });
+        }
+      },
+
+      setupInteractions() {
+        let isDragging = false, lastX = 0, lastY = 0;
+
+        this.canvas.addEventListener('mousedown', e => {
+          isDragging = true;
+          lastX = e.clientX;
+          lastY = e.clientY;
+          SlimeAudio.pop();
+        });
+
+        window.addEventListener('mouseup', () => { isDragging = false; });
+
+        window.addEventListener('mousemove', e => {
+          this.cursorTargetX = (e.clientX / window.innerWidth) * 2 - 1;
+          this.cursorTargetY = (e.clientY / window.innerHeight) * 2 - 1;
+
+          if (!isDragging) return;
+          const dx = e.clientX - lastX;
+          const dy = e.clientY - lastY;
+          this.rotY += dx * 0.015;
+          this.rotX = Math.max(-0.6, Math.min(0.8, this.rotX + dy * 0.015));
+          lastX = e.clientX;
+          lastY = e.clientY;
+        });
+
+        // Touch support
+        this.canvas.addEventListener('touchstart', e => {
+          if (e.touches.length === 1) {
+            isDragging = true;
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+          }
+        }, { passive: true });
+
+        window.addEventListener('touchend', () => { isDragging = false; });
+
+        window.addEventListener('touchmove', e => {
+          if (!isDragging || e.touches.length !== 1) return;
+          const dx = e.touches[0].clientX - lastX;
+          const dy = e.touches[0].clientY - lastY;
+          this.rotY += dx * 0.02;
+          this.rotX = Math.max(-0.6, Math.min(0.8, this.rotX + dy * 0.02));
+          lastX = e.touches[0].clientX;
+          lastY = e.touches[0].clientY;
+        }, { passive: true });
+      },
+
+      startLoop() {
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fpsTimer = performance.now();
+
+        const render = (time) => {
+          requestAnimationFrame(render);
+          const dt = (time - lastTime) / 1000;
+          lastTime = time;
+
+          frameCount++;
+          if (time - fpsTimer >= 1000) {
+            const fpsEl = document.getElementById('lab-fps-counter');
+            if (fpsEl) fpsEl.innerText = (frameCount * 1000 / (time - fpsTimer)).toFixed(1) + ' FPS';
+            frameCount = 0;
+            fpsTimer = time;
+          }
+
+          if (this.speed > 0) {
+            this.rotY += 0.7 * dt * this.speed;
+          }
+
+          // Clear
+          this.ctx.fillStyle = '#0f172a';
+          this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+          // Floor grid lines
+          this.ctx.strokeStyle = '#1e293b';
+          this.ctx.lineWidth = 1;
+          for (let gx = -120; gx <= 120; gx += 20) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.canvas.width / 2 + gx, this.canvas.height / 2 + 50);
+            this.ctx.lineTo(this.canvas.width / 2 + gx * 2.2, this.canvas.height);
+            this.ctx.stroke();
+          }
+
+          const cx = this.canvas.width / 2;
+          const cy = this.canvas.height / 2 + 15;
+          const scale = 4.2;
+
+          const cosY = Math.cos(this.rotY);
+          const sinY = Math.sin(this.rotY);
+          const cosX = Math.cos(this.rotX);
+          const sinX = Math.sin(this.rotX);
+
+          const undulationTime = time * 0.005 * this.speed;
+          const breathingPulsation = 1.0 + Math.sin(time * 0.003) * 0.08 * this.pneumostomeScale;
+
+          const projected = [];
+
+          for (let i = 0; i < this.voxels.length; i++) {
+            const v = this.voxels[i];
+            const wave = Math.sin(v.baseZ * 0.28 - undulationTime) * 1.5;
+            let animY = v.y + wave;
+            let animX = v.x;
+            let animZ = v.z;
+
+            // Breathing pore swelling on mantle right side
+            if (v.isMantle && v.x > 3) {
+              animX *= breathingPulsation;
+              animY *= breathingPulsation;
+            }
+
+            // Interactive eye tracking toward cursor
+            if (v.isEye || v.stalkIndex) {
+              const stalkFlex = (v.stalkIndex || 1) * 0.25;
+              animX += this.cursorTargetX * stalkFlex * 2.5;
+              animY -= this.cursorTargetY * stalkFlex * 1.5;
+            }
+
+            // 3D Matrix Math
+            let rx = animX * cosY - animZ * sinY;
+            let rz = animX * sinY + animZ * cosY;
+
+            let ry = animY * cosX - rz * sinX;
+            let rz2 = animY * sinX + rz * cosX;
+
+            const fov = 220;
+            const p = fov / (fov + rz2 + 35);
+            const px = cx + rx * scale * p;
+            const py = cy - ry * scale * p;
+
+            projected.push({
+              px: Math.round(px),
+              py: Math.round(py),
+              depth: rz2,
+              color: v.color,
+              size: Math.max(2, Math.round(6.2 * p))
+            });
+          }
+
+          // Slime trail glistening dots behind slug
+          if (this.trails) {
+            const pal = this.palettes[this.currentPalette];
+            this.ctx.fillStyle = pal.trail;
+            for (let t = -32; t <= -12; t += 4) {
+              let tx = Math.sin(t * 0.3) * 2;
+              let rtx = tx * cosY - t * sinY;
+              let rtz = tx * sinY + t * cosY;
+              let rty = 0 * cosX - rtz * sinX;
+              let rtz2 = 0 * sinX + rtz * cosX;
+              const p = 220 / (220 + rtz2 + 35);
+              const px = Math.round(cx + rtx * scale * p);
+              const py = Math.round(cy - rty * scale * p);
+              this.ctx.beginPath();
+              this.ctx.arc(px, py, 4 * p, 0, Math.PI * 2);
+              this.ctx.fill();
+            }
+          }
+
+          // Depth sort voxels
+          projected.sort((a, b) => b.depth - a.depth);
+
+          // Render Voxels
+          for (let i = 0; i < projected.length; i++) {
+            const pv = projected[i];
+            if (this.wireframe) {
+              this.ctx.strokeStyle = pv.color;
+              this.ctx.strokeRect(pv.px - pv.size / 2, pv.py - pv.size / 2, pv.size, pv.size);
+            } else {
+              this.ctx.fillStyle = pv.color;
+              this.ctx.fillRect(pv.px - pv.size / 2, pv.py - pv.size / 2, pv.size, pv.size);
+              // Pixel highlight
+              this.ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
+              this.ctx.fillRect(pv.px - pv.size / 2, pv.py - pv.size / 2, pv.size, 1);
+            }
+          }
+        };
+
+        requestAnimationFrame(render);
+      }
+    };
+
+    function triggerPneumostomePulse() {
+      Slug3DEngine.pneumostomeScale = 2.4;
+      SlimeAudio.bubble();
+      setTimeout(() => { Slug3DEngine.pneumostomeScale = 1.0; }, 600);
+    }
+
+    /* =========================================================================
+     * 4. FORUM ENGINE (SLUG-NET Explorer Discussions & Interactive Posting)
+     * ========================================================================= */
+    const ForumEngine = {
+      activeCategory: 'all',
+      currentThreadId: null,
+
+      threads: [
+        {
+          id: 't1',
+          category: 'hydration',
+          title: 'PSA: Major Sun Flare on Concrete Sidewalks (Stay Under Hostas!)',
+          author: 'SlimeMatron_97',
+          authorTitle: 'Senior Mucus Specialist',
+          avatar: '🐌',
+          replies: 4,
+          views: 412,
+          lastPost: '10:14 AM',
+          posts: [
+            {
+              author: 'SlimeMatron_97',
+              title: 'Senior Mucus Specialist',
+              joined: 'May 1996',
+              postsCount: 541,
+              avatar: '🐌',
+              date: '14-Oct-1997 08:12 AM',
+              content: 'Fellow gastropods of the Northern Border! The human homeowner has left the patio umbrella closed today. Ground surface temps are already exceeding 26°C with 0% surface moisture.\n\nPlease stick to the underside of the broad-leaf hostas and maintain a minimum pedal slime layer of 0.8mm until twilight. Travel safe!',
+              sig: '-----------------------------------------\n"Gliding without fear, leaving silver behind"\n[Arionidae Defense Guild #42]'
+            },
+            {
+              author: 'BananaGlider',
+              title: 'Pacific Forest Scout',
+              joined: 'Aug 1996',
+              postsCount: 198,
+              avatar: '🍌',
+              date: '14-Oct-1997 09:05 AM',
+              content: 'Solid report. I barely made it back to the compost trench this morning. The radiant heat off the bricks almost crystallized my mantle.',
+              sig: 'Ariolimax columbianus | Proudly Yellow'
+            },
+            {
+              author: 'RadulaMax',
+              title: 'Decomposition Veteran',
+              joined: 'Jan 1997',
+              postsCount: 88,
+              avatar: '🍂',
+              date: '14-Oct-1997 10:14 AM',
+              content: 'Can confirm. Hosta leaf #3 on the east side has prime condensation right now. Sharing space with three woodlice.',
+              sig: '--- Rasping leaves since the spring thaw ---'
+            }
+          ]
+        },
+        {
+          id: 't2',
+          category: 'defense',
+          title: 'URGENT: Yellow plastic beer cup in the squash bed. IS IT SAFE?!',
+          author: 'HopSeeker_95',
+          authorTitle: 'Fresh Slime',
+          avatar: '🍺',
+          replies: 5,
+          views: 1204,
+          lastPost: '11:42 AM',
+          posts: [
+            {
+              author: 'HopSeeker_95',
+              title: 'Fresh Slime',
+              joined: 'Oct 1997',
+              postsCount: 6,
+              avatar: '🍺',
+              date: '14-Oct-1997 10:30 AM',
+              content: 'It smells like paradise. Bready, yeasty, malted goodness radiating from a yellow Solo cup sunken right into the damp topsoil. The rim is level with the moss. Should I slide in for a quick sip??',
+              sig: 'Always hungry.'
+            },
+            {
+              author: 'SaltShieldMod',
+              title: 'Moist Mod',
+              joined: 'Mar 1995',
+              postsCount: 1420,
+              avatar: '🛡️',
+              date: '14-Oct-1997 10:33 AM',
+              content: 'DO NOT ENTER! IT IS A SUBMERGED YEAST DEATH PIT. The walls are slick plastic with zero traction. You will glide in and never crawl out! Retract stalks and retreat into the pumpkin vines immediately!!',
+              sig: 'BEER TRAPS ARE HUMAN PSY-OPS | SPREAD THE WORD'
+            }
+          ]
+        },
+        {
+          id: 't3',
+          category: 'buffet',
+          title: 'Review: Decaying Strawberry vs. Soggy Romaine Leaf',
+          author: 'GourmetMollusk',
+          authorTitle: 'Radula Connoisseur',
+          avatar: '🍓',
+          replies: 3,
+          views: 310,
+          lastPost: '01:25 PM',
+          posts: [
+            {
+              author: 'GourmetMollusk',
+              title: 'Radula Connoisseur',
+              joined: 'Jul 1996',
+              postsCount: 312,
+              avatar: '🍓',
+              date: '13-Oct-1997 04:20 PM',
+              content: 'Had the pleasure of sampling both last evening behind the greenhouse. The overripe strawberry offered unmatched pectin sweetness and zero radula resistance. Romaine was crisp, but lacked that funky fermented depth. 9/10 for the berry.',
+              sig: 'Life is too short for dry leaves.'
+            }
+          ]
+        },
+        {
+          id: 't4',
+          category: 'radula',
+          title: 'Radula Maintenance: Proper rasping technique for tough lichen',
+          author: 'ToothGrinder',
+          authorTitle: 'Dental Surgeon',
+          avatar: '🦷',
+          replies: 2,
+          views: 290,
+          lastPost: '02:08 PM',
+          posts: [
+            {
+              author: 'ToothGrinder',
+              title: 'Dental Surgeon',
+              joined: 'Feb 1996',
+              postsCount: 78,
+              avatar: '🦷',
+              date: '12-Oct-1997 07:11 PM',
+              content: 'Remember that your radula has over 25,000 microscopic chitinous teeth, but they DO wear down if you grind against stone too aggressively. Always rasp with a steady rhythmic ribbon stroke!',
+              sig: 'Keep your ribbon sharp and your mucus wet.'
+            }
+          ]
+        },
+        {
+          id: 't5',
+          category: 'defense',
+          title: 'Anti-Sodium Protocol: Surviving an accidental salt particle graze',
+          author: 'SaltSurvivor',
+          authorTitle: 'Veteran Scout',
+          avatar: '🛡️',
+          replies: 6,
+          views: 890,
+          lastPost: '03:10 PM',
+          posts: [
+            {
+              author: 'SaltSurvivor',
+              title: 'Veteran Scout',
+              joined: 'Apr 1995',
+              postsCount: 650,
+              avatar: '🛡️',
+              date: '11-Oct-1997 09:14 AM',
+              content: 'If your pedal margin touches sodium: DO NOT PANIC. Instantly engage hyper-frothing gland mode. Secrete copious sacrificial thick foam to create an osmotic buffer and roll down the nearest embankment toward wet moss.',
+              sig: 'Surviving since the 1994 Garden Wars.'
+            }
+          ]
+        },
+        {
+          id: 't6',
+          category: 'buffet',
+          title: 'Hosta Variety Tier List (1997 Edition)',
+          author: 'LeafEater99',
+          authorTitle: 'Gastronomy Critic',
+          avatar: '🥬',
+          replies: 8,
+          views: 1450,
+          lastPost: '04:12 PM',
+          posts: [
+            {
+              author: 'LeafEater99',
+              title: 'Gastronomy Critic',
+              joined: 'Nov 1996',
+              postsCount: 220,
+              avatar: '🥬',
+              date: '10-Oct-1997 03:00 PM',
+              content: 'S-Tier: Hosta ‘Elegans’ (tender, massive surface area)\nA-Tier: Hosta ‘Halcyon’ (good moisture retention)\nF-Tier: Fake plastic plants (teeth chipped, zero nutrition)',
+              sig: 'In foliage we trust.'
+            }
+          ]
+        }
+      ],
+
+      init() {
+        this.renderTable();
+      },
+
+      filter(cat) {
+        this.activeCategory = cat;
+        document.querySelectorAll('#fcat-all, #fcat-hydration, #fcat-defense, #fcat-buffet, #fcat-radula').forEach(b => b.classList.remove('active'));
+        const activeBtn = document.getElementById('fcat-' + cat);
+        if (activeBtn) activeBtn.classList.add('active');
+        SlimeAudio.pop();
+        this.renderTable();
+      },
+
+      renderTable() {
+        const tbody = document.getElementById('forum-threads-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        const list = this.threads.filter(t => this.activeCategory === 'all' || t.category === this.activeCategory);
+
+        list.forEach((t, i) => {
+          const tr = document.createElement('tr');
+          tr.className = `border-b border-[#e5e7eb] hover:bg-[#000080] hover:text-white cursor-pointer ${i % 2 === 0 ? 'bg-white' : 'bg-[#f4f4f4]'}`;
+          tr.onclick = () => this.openThread(t.id);
+
+          tr.innerHTML = `
+            <td class="p-1 border-r border-[#dfdfdf] text-center text-xs">${t.category === 'defense' ? '⚠️' : '📄'}</td>
+            <td class="p-1 border-r border-[#dfdfdf] font-bold"><span class="hover:underline">${t.title}</span></td>
+            <td class="p-1 border-r border-[#dfdfdf] text-[10px] text-gray-700">${t.author}</td>
+            <td class="p-1 border-r border-[#dfdfdf] text-center font-mono">${t.posts.length}</td>
+            <td class="p-1 border-r border-[#dfdfdf] text-center font-mono">${t.views}</td>
+            <td class="p-1 text-[10px] text-gray-500 font-mono">${t.lastPost}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById('browser-status').innerText = `Document: Done • ${list.length} threads displayed in [${this.activeCategory.toUpperCase()}]`;
+      },
+
+      openThread(threadId) {
+        const thread = this.threads.find(t => t.id === threadId);
+        if (!thread) return;
+
+        this.currentThreadId = threadId;
+        thread.views += 1;
+        SlimeAudio.squelch();
+
+        document.getElementById('forum-topic-list').classList.add('hidden');
+        document.getElementById('forum-thread-view').classList.remove('hidden');
+        document.getElementById('forum-thread-view').classList.add('flex');
+
+        document.getElementById('open-thread-title').innerText = thread.title;
+        document.getElementById('open-thread-category').innerText = `[${thread.category.toUpperCase()}]`;
+        document.getElementById('browser-address').innerText = `http://www.slug-net.org/forum.php3?id=${thread.id}`;
+
+        this.renderPosts(thread);
+      },
+
+      backToTopics() {
+        this.currentThreadId = null;
+        document.getElementById('forum-thread-view').classList.add('hidden');
+        document.getElementById('forum-thread-view').classList.remove('flex');
+        document.getElementById('forum-topic-list').classList.remove('hidden');
+        document.getElementById('browser-address').innerText = `http://www.slug-net.org/forum.php3`;
+        SlimeAudio.pop();
+        this.renderTable();
+      },
+
+      renderPosts(thread) {
+        const container = document.getElementById('thread-posts-stream');
+        if (!container) return;
+        container.innerHTML = '';
+
+        thread.posts.forEach((post, idx) => {
+          const card = document.createElement('div');
+          card.className = 'win-outset bg-[#c0c0c0] p-2 flex flex-col md:flex-row gap-2.5 text-xs';
+
+          card.innerHTML = `
+            <!-- Left User Column -->
+            <div class="win-inset bg-[#e5e5e5] p-2 w-full md:w-36 shrink-0 flex md:flex-col items-center md:items-start gap-1 text-[10px]">
+              <div class="text-2xl p-1 bg-white border border-[#808080]">${post.avatar || '🐌'}</div>
+              <div class="font-bold text-[#000080] text-xs">${post.author}</div>
+              <div class="text-gray-700">${post.title || 'Mollusk'}</div>
+              <div class="text-gray-500 font-mono mt-1">Posts: ${post.postsCount || 1}</div>
+              <div class="text-gray-500 font-mono">Joined: ${post.joined || 'Oct 1997'}</div>
+              <div class="text-emerald-700 font-bold">● MOIST</div>
+            </div>
+
+            <!-- Right Content Column -->
+            <div class="flex-1 flex flex-col justify-between win-inset bg-white p-2.5 text-black">
+              <div>
+                <div class="flex justify-between items-center text-[10px] text-gray-500 pb-1 border-b border-[#e5e7eb] mb-2 font-mono">
+                  <span>Post #${idx + 1}</span>
+                  <span>${post.date}</span>
+                </div>
+                <div class="leading-relaxed whitespace-pre-line text-[11px] font-sans">
+                  ${post.content}
+                </div>
+              </div>
+
+              ${post.sig ? `
+                <div class="mt-3 pt-1 border-t border-dashed border-[#808080] text-[9px] text-gray-500 font-mono whitespace-pre-line">
+                  ${post.sig}
+                </div>
+              ` : ''}
+            </div>
+          `;
+          container.appendChild(card);
+        });
+
+        container.scrollTop = container.scrollHeight;
+      },
+
+      postReply() {
+        if (!this.currentThreadId) return;
+        const author = document.getElementById('forum-reply-author').value.trim() || 'AnonymousSlug';
+        const content = document.getElementById('forum-reply-content').value.trim();
+
+        if (!content) {
+          SlimeAudio.sizzle();
+          return;
+        }
+
+        const thread = this.threads.find(t => t.id === this.currentThreadId);
+        if (!thread) return;
+
+        const now = new Date();
+        const dateStr = `14-Oct-1997 ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+        thread.posts.push({
+          author,
+          title: 'Guest Gastropod',
+          joined: 'Oct 1997',
+          postsCount: 2,
+          avatar: '🐌',
+          date: dateStr,
+          content,
+          sig: '--- Leaving a glistening thread across SLUG-NET ---'
+        });
+
+        thread.lastPost = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('forum-reply-content').value = '';
+
+        SlimeAudio.squelch();
+        this.renderPosts(thread);
+        this.renderTable();
+      },
+
+      reload() {
+        SlimeAudio.squelch();
+        this.renderTable();
+      },
+
+      openNewTopicModal() {
+        document.getElementById('modal-newtopic').classList.remove('hidden');
+        SlimeAudio.pop();
+      },
+
+      closeNewTopicModal() {
+        document.getElementById('modal-newtopic').classList.add('hidden');
+      },
+
+      submitNewTopic() {
+        const author = document.getElementById('newtopic-author').value.trim() || 'GastropodCreator';
+        const category = document.getElementById('newtopic-category').value;
+        const title = document.getElementById('newtopic-title').value.trim();
+        const body = document.getElementById('newtopic-body').value.trim();
+
+        if (!title || !body) {
+          SlimeAudio.sizzle();
+          return;
+        }
+
+        const now = new Date();
+        const dateStr = `14-Oct-1997 ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        const newId = 't_' + Date.now();
+
+        this.threads.unshift({
+          id: newId,
+          category,
+          title,
+          author,
+          authorTitle: 'Topic Creator',
+          avatar: '🐌',
+          replies: 1,
+          views: 1,
+          lastPost: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          posts: [
+            {
+              author,
+              title: 'Topic Creator',
+              joined: 'Oct 1997',
+              postsCount: 1,
+              avatar: '🐌',
+              date: dateStr,
+              content: body,
+              sig: '-----------------------------------------\n"New trails start with one drop of mucus"'
+            }
+          ]
+        });
+
+        this.closeNewTopicModal();
+        document.getElementById('newtopic-title').value = '';
+        document.getElementById('newtopic-body').value = '';
+
+        SlimeAudio.splat();
+        this.renderTable();
+        this.openThread(newId);
+      }
+    };
+
+    /* =========================================================================
+     * 5. SLUGSWEEPER GAME (Full Playable Minesweeper Clone)
+     * ========================================================================= */
+    const SweeperEngine = {
+      rows: 9,
+      cols: 9,
+      mines: 10,
+      grid: [],
+      revealed: [],
+      flagged: [],
+      gameOver: false,
+      flagMode: false,
+      timer: 0,
+      timerInterval: null,
+
+      init() {
+        this.restart();
+      },
+
+      restart() {
+        clearInterval(this.timerInterval);
+        this.timer = 0;
+        this.gameOver = false;
+        document.getElementById('sweeper-timer').innerText = '000';
+        document.getElementById('sweeper-mines-count').innerText = '010';
+        document.getElementById('sweeper-smiley').innerText = '🙂';
+
+        this.grid = Array(this.rows).fill(0).map(() => Array(this.cols).fill(0));
+        this.revealed = Array(this.rows).fill(false).map(() => Array(this.cols).fill(false));
+        this.flagged = Array(this.rows).fill(false).map(() => Array(this.cols).fill(false));
+
+        // Place mines (Salt crystals 🧂)
+        let planted = 0;
+        while (planted < this.mines) {
+          const r = Math.floor(Math.random() * this.rows);
+          const c = Math.floor(Math.random() * this.cols);
+          if (this.grid[r][c] !== 'M') {
+            this.grid[r][c] = 'M';
+            planted++;
+          }
+        }
+
+        // Compute numbers
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            if (this.grid[r][c] === 'M') continue;
+            let count = 0;
+            for (let dr = -1; dr <= 1; dr++) {
+              for (let dc = -1; dc <= 1; dc++) {
+                const nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols && this.grid[nr][nc] === 'M') {
+                  count++;
+                }
+              }
+            }
+            this.grid[r][c] = count;
+          }
+        }
+
+        this.renderBoard();
+        SlimeAudio.pop();
+      },
+
+      renderBoard() {
+        const container = document.getElementById('sweeper-grid');
+        if (!container) return;
+        container.innerHTML = '';
+
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            const tile = document.createElement('div');
+            tile.className = 'sweeper-tile sweeper-unrevealed';
+            tile.id = `sw-${r}-${c}`;
+
+            // Left Click / Tap
+            tile.onclick = (e) => {
+              if (this.flagMode) this.toggleFlag(r, c);
+              else this.clickTile(r, c);
+            };
+
+            // Right Click (Flagging)
+            tile.oncontextmenu = (e) => {
+              e.preventDefault();
+              this.toggleFlag(r, c);
+            };
+
+            container.appendChild(tile);
+          }
+        }
+      },
+
+      startTimerIfNeeded() {
+        if (!this.timerInterval && !this.gameOver) {
+          this.timerInterval = setInterval(() => {
+            this.timer++;
+            document.getElementById('sweeper-timer').innerText = String(Math.min(999, this.timer)).padStart(3, '0');
+          }, 1000);
+        }
+      },
+
+      clickTile(r, c) {
+        if (this.gameOver || this.revealed[r][c] || this.flagged[r][c]) return;
+        this.startTimerIfNeeded();
+
+        if (this.grid[r][c] === 'M') {
+          // Hit Salt!
+          this.gameOver = true;
+          clearInterval(this.timerInterval);
+          document.getElementById('sweeper-smiley').innerText = '😵';
+          SlimeAudio.sizzle();
+          this.revealAllMines();
+          return;
+        }
+
+        // Safe damp mulch tile
+        SlimeAudio.pop();
+        this.reveal(r, c);
+        this.checkWin();
+      },
+
+      reveal(r, c) {
+        if (r < 0 || r >= this.rows || c < 0 || c >= this.cols) return;
+        if (this.revealed[r][c] || this.flagged[r][c]) return;
+
+        this.revealed[r][c] = true;
+        const el = document.getElementById(`sw-${r}-${c}`);
+        if (!el) return;
+
+        el.className = 'sweeper-tile sweeper-revealed';
+        const val = this.grid[r][c];
+
+        if (val > 0) {
+          el.innerText = val;
+          const colors = ['', '#0000ff', '#008000', '#ff0000', '#000080', '#800000', '#008080', '#000000', '#808080'];
+          el.style.color = colors[val] || '#000';
+        } else {
+          el.innerText = '';
+          // Flood fill adjacent empty tiles
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              this.reveal(r + dr, c + dc);
+            }
+          }
+        }
+      },
+
+      toggleFlag(r, c) {
+        if (this.gameOver || this.revealed[r][c]) return;
+        this.startTimerIfNeeded();
+
+        this.flagged[r][c] = !this.flagged[r][c];
+        const el = document.getElementById(`sw-${r}-${c}`);
+        if (!el) return;
+
+        if (this.flagged[r][c]) {
+          el.innerText = '🥬'; // Lettuce marker
+          SlimeAudio.pop();
+        } else {
+          el.innerText = '';
+          SlimeAudio.glide();
+        }
+
+        let flagCount = 0;
+        for (let row of this.flagged) for (let f of row) if (f) flagCount++;
+        const remaining = Math.max(0, this.mines - flagCount);
+        document.getElementById('sweeper-mines-count').innerText = String(remaining).padStart(3, '0');
+      },
+
+      revealAllMines() {
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            if (this.grid[r][c] === 'M') {
+              const el = document.getElementById(`sw-${r}-${c}`);
+              if (el) {
+                el.className = 'sweeper-tile sweeper-revealed bg-red-200';
+                el.innerText = '🧂';
+              }
+            }
+          }
+        }
+      },
+
+      checkWin() {
+        let unrevealedSafe = 0;
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            if (!this.revealed[r][c] && this.grid[r][c] !== 'M') unrevealedSafe++;
+          }
+        }
+
+        if (unrevealedSafe === 0) {
+          this.gameOver = true;
+          clearInterval(this.timerInterval);
+          document.getElementById('sweeper-smiley').innerText = '😎';
+          SlimeAudio.splat();
+        }
+      },
+
+      toggleFlagMode() {
+        this.flagMode = !this.flagMode;
+        document.getElementById('flag-mode-status').innerText = this.flagMode ? 'ON' : 'OFF';
+        SlimeAudio.pop();
+      },
+
+      showHelp() {
+        SlimeAudio.pop();
+      }
+    };
+
+    /* =========================================================================
+     * 6. SLIMEPAD ENGINE (Preloaded Notes, Writing & Downloading)
+     * ========================================================================= */
+    const SlimePadEngine = {
+      initialText: 
+`==============================================
+GASTROPOD DAILY OBSERVATIONS - OCT 14, 1997
+==============================================
+
+04:15 AM - Heavy dew settled across the eastern flower bed.
+           Excellent pedal lubrication. Glided at 1.4 mm/sec.
+
+06:30 AM - Spotted neighborhood cat resting on patio flagstone.
+           Maintained evasive posture beneath flowerpot #4.
+
+09:00 AM - Sun breached the hydrangea canopy.
+           Retracted superior eye stalks by 40%.
+           Slime viscosity holding at optimal 98.4%.
+
+12:15 PM - Dining report:
+           Found abandoned watermelon rind near the compost bin.
+           Sublime sugar fermentation. Chitinous radula is happy.
+
+REMINDERS:
+- Never trust yellow plastic cups sunk into mulch (BEER HAZARD).
+- Salt distance safety perimeter: minimum 20 body lengths.
+- Hydrate frequently. Keep the mantle glistened.`,
+
+      init() {
+        const area = document.getElementById('slimepad-textarea');
+        if (area) area.value = this.initialText;
+      },
+
+      newFile() {
+        const area = document.getElementById('slimepad-textarea');
+        if (area) area.value = '';
+        document.getElementById('slimepad-title').innerText = 'Untitled.txt - SlimePad';
+        SlimeAudio.pop();
+      },
+
+      saveFile() {
+        const area = document.getElementById('slimepad-textarea');
+        if (!area) return;
+        const text = area.value;
+        const blob = new Blob([text], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'gastropod_notes_1997.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        SlimeAudio.squelch();
+      },
+
+      insertMoistureStamp() {
+        const area = document.getElementById('slimepad-textarea');
+        if (!area) return;
+        const now = new Date();
+        const stamp = `\n[MOISTURE CHECK: ${now.toLocaleTimeString()} - 99.2% DAMP]\n`;
+        area.value += stamp;
+        SlimeAudio.glide();
+      },
+
+      addSecretSlugPoem() {
+        const area = document.getElementById('slimepad-textarea');
+        if (!area) return;
+        const poem = 
+`\n--- ODE TO THE MUCUS TRAIL ---
+Silver ribbons on the stone,
+A shell-less wanderer, never alone.
+Rain falls soft upon the soil,
+No rush, no haste, no human toil.
+------------------------------\n`;
+        area.value += poem;
+        SlimeAudio.squelch();
+      }
+    };
+
+    /* =========================================================================
+     * 7. SALTSHIELD 95 ANTIVIRUS SCANNER ENGINE
+     * ========================================================================= */
+    const SaltShieldEngine = {
+      isScanning: false,
+
+      scanFiles: [
+        "C:\\SLUG_SYS\\MUCUS32.DLL",
+        "C:\\GARDEN\\HOSTA_CACHE.DAT",
+        "C:\\WINDOWS\\SYSTEM\\RADULA_VXD.386",
+        "C:\\MULCH\\DECOMPOSITION_TABLE.DBF",
+        "C:\\THREATS\\NACL_CRYSTALLINE_SHAKER.EXE  <-- [DETECTED!]",
+        "C:\\PATIO\\COPPER_TAPE_BARRIER.SYS",
+        "C:\\BEER_TRAPS\\YELLOW_CUP_PUDDLE.VIRUS  <-- [CRITICAL HAZARD!]",
+        "C:\\HYDRATION\\DEW_MONITOR.EXE",
+        "C:\\SLUG_SYS\\PNEUMOSTOME_DRIVER.SYS"
+      ],
+
+      startScan() {
+        if (this.isScanning) return;
+        this.isScanning = true;
+        SlimeAudio.sizzle();
+
+        const bar = document.getElementById('saltshield-bar');
+        const pct = document.getElementById('saltshield-pct');
+        const status = document.getElementById('saltshield-status-label');
+        const logBox = document.getElementById('saltshield-logs');
+        const fileLabel = document.getElementById('saltshield-filepath');
+
+        status.innerText = "Scanning Active Sectors...";
+        let progress = 0;
+        let fileIdx = 0;
+
+        const interval = setInterval(() => {
+          progress += 5;
+          bar.style.width = progress + "%";
+          pct.innerText = progress + "%";
+
+          if (fileIdx < this.scanFiles.length) {
+            fileLabel.innerText = this.scanFiles[fileIdx];
+            const div = document.createElement('div');
+            if (this.scanFiles[fileIdx].includes("DETECTED") || this.scanFiles[fileIdx].includes("HAZARD")) {
+              div.className = "text-red-700 font-bold";
+              div.innerText = `[THREAT FOUND] ${this.scanFiles[fileIdx]}`;
+              SlimeAudio.sizzle();
+            } else {
+              div.className = "text-gray-600";
+              div.innerText = `[OK] Scanning: ${this.scanFiles[fileIdx]}`;
+            }
+            logBox.appendChild(div);
+            logBox.scrollTop = logBox.scrollHeight;
+            fileIdx++;
+          }
+
+          if (progress >= 100) {
+            clearInterval(interval);
+            this.isScanning = false;
+            status.innerText = "Scan Complete: 2 Sodium Hazards Quarantined!";
+            SlimeAudio.splat();
+          }
+        }, 120);
+      },
+
+      quarantineThreats() {
+        const logBox = document.getElementById('saltshield-logs');
+        const div = document.createElement('div');
+        div.className = "text-blue-800 font-bold";
+        div.innerText = "[ACTION] Salt crystals and beer cups safely locked in lead container.";
+        logBox.appendChild(div);
+        logBox.scrollTop = logBox.scrollHeight;
+        SlimeAudio.pop();
+      },
+
+      deployMucusFoam() {
+        const logBox = document.getElementById('saltshield-logs');
+        const div = document.createElement('div');
+        div.className = "text-emerald-700 font-bold";
+        div.innerText = "[DEFENSE] 500ml of high-viscosity protective mucus foam deployed.";
+        logBox.appendChild(div);
+        logBox.scrollTop = logBox.scrollHeight;
+        SlimeAudio.splat();
+      }
+    };
+
+    /* =========================================================================
+     * 8. COMPOST BIN & RECYCLE SYSTEM
+     * ========================================================================= */
+    function emptyCompostBin() {
+      const list = document.getElementById('compost-items-list');
+      if (list) list.innerHTML = '<div class="text-gray-500 italic p-4 text-center">Compost Bin is empty. Time to forage the garden for more rotting snacks!</div>';
+      document.getElementById('compost-count-label').innerText = '0 items (Hungry)';
+      SlimeAudio.splat();
+    }
+
+    function feedFromCompost() {
+      SlimeAudio.chomp();
+      emptyCompostBin();
+    }
+
+    /* =========================================================================
+     * 9. DESKTOP SPECIAL EFFECTS (Slime Trails, Wandering Slugs, Droplets)
+     * ========================================================================= */
+    let slimeTrailEnabled = true;
+    const trailPoints = [];
+    const trailCanvas = document.getElementById('slimeFxCanvas');
+    const tCtx = trailCanvas.getContext('2d');
+
+    function resizeTrailCanvas() {
+      trailCanvas.width = window.innerWidth;
+      trailCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeTrailCanvas);
+    resizeTrailCanvas();
+
+    window.addEventListener('mousemove', e => {
+      if (!slimeTrailEnabled) return;
+      trailPoints.push({
+        x: e.clientX,
+        y: e.clientY,
+        alpha: 0.6,
+        radius: Math.random() * 4 + 3
+      });
+    });
+
+    function loopSlimeTrail() {
+      requestAnimationFrame(loopSlimeTrail);
+      tCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+
+      for (let i = trailPoints.length - 1; i >= 0; i--) {
+        const p = trailPoints[i];
+        p.alpha -= 0.012;
+        if (p.alpha <= 0) {
+          trailPoints.splice(i, 1);
+          continue;
+        }
+        tCtx.beginPath();
+        tCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        // Glistening translucent neon yellow-green
+        tCtx.fillStyle = `rgba(180, 255, 100, ${p.alpha})`;
+        tCtx.shadowColor = 'rgba(100, 255, 100, 0.5)';
+        tCtx.shadowBlur = 4;
+        tCtx.fill();
+        tCtx.shadowBlur = 0;
+      }
+    }
+    loopSlimeTrail();
+
+    function toggleSlimeCursorTrail() {
+      slimeTrailEnabled = !slimeTrailEnabled;
+      const btn = document.getElementById('tray-btn-trail');
+      if (btn) btn.classList.toggle('active');
+      SlimeAudio.pop();
+    }
+
+    // Wandering Desktop Slugs
+    function spawnDesktopSlug() {
+      const container = document.getElementById('desktopSlugsContainer');
+      const slugEl = document.createElement('div');
+      slugEl.className = 'absolute text-2xl pointer-events-auto cursor-pointer transition-transform duration-1000 select-none';
+      slugEl.innerText = '🐌';
+
+      let x = Math.random() * (window.innerWidth - 60);
+      let y = Math.random() * (window.innerHeight - 100);
+      slugEl.style.left = x + 'px';
+      slugEl.style.top = y + 'px';
+
+      slugEl.onclick = () => {
+        SlimeAudio.squelch();
+        slugEl.style.transform = 'scale(1.5)';
+        setTimeout(() => { slugEl.style.transform = 'scale(1.0)'; }, 300);
+      };
+
+      container.appendChild(slugEl);
+      SlimeAudio.glide();
+
+      // Sluggish wander interval
+      setInterval(() => {
+        x += (Math.random() - 0.5) * 60;
+        y += (Math.random() - 0.5) * 40;
+        x = Math.max(10, Math.min(window.innerWidth - 40, x));
+        y = Math.max(10, Math.min(window.innerHeight - 60, y));
+        slugEl.style.left = x + 'px';
+        slugEl.style.top = y + 'px';
+      }, 2500);
+    }
+
+    // Desktop Slime Splat FX
+    function triggerDesktopSplat() {
+      SlimeAudio.splat();
+      for (let i = 0; i < 40; i++) {
+        trailPoints.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          alpha: 0.9,
+          radius: Math.random() * 12 + 6
+        });
+      }
+    }
+
+    /* =========================================================================
+     * 10. TASKBAR CLOCK, START MENU & SHUT DOWN SYSTEM
+     * ========================================================================= */
+    function updateTaskbarClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const minStr = minutes < 10 ? '0' + minutes : minutes;
+      const clockEl = document.getElementById('taskbar-clock');
+      if (clockEl) clockEl.innerText = `${hours}:${minStr} ${ampm}`;
+    }
+    setInterval(updateTaskbarClock, 1000);
+    updateTaskbarClock();
+
+    function toggleStartMenu() {
+      const menu = document.getElementById('start-menu');
+      const btn = document.getElementById('start-button');
+      if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        btn.classList.add('active');
+        SlimeAudio.pop();
+      } else {
+        menu.classList.add('hidden');
+        btn.classList.remove('active');
+      }
+    }
+
+    window.addEventListener('click', e => {
+      const menu = document.getElementById('start-menu');
+      const btn = document.getElementById('start-button');
+      if (!menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.add('hidden');
+        btn.classList.remove('active');
+      }
+    });
+
+    function openShutdownModal() {
+      document.getElementById('modal-shutdown').classList.remove('hidden');
+      SlimeAudio.pop();
+    }
+
+    function closeShutdownModal() {
+      document.getElementById('modal-shutdown').classList.add('hidden');
+    }
+
+    function executeShutdown() {
+      closeShutdownModal();
+      SlimeAudio.sizzle();
+      document.getElementById('screen-safe-shutdown').classList.remove('hidden');
+    }
+
+    function rebootSlugOS() {
+      document.getElementById('screen-safe-shutdown').classList.add('hidden');
+      SlimeAudio.squelch();
+    }
+
+    function showAboutDialog() {
+      document.getElementById('modal-about').classList.remove('hidden');
+      SlimeAudio.pop();
+    }
+
+    function closeAboutDialog() {
+      document.getElementById('modal-about').classList.add('hidden');
+    }
+
+    /* =========================================================================
+     * 11. BOOTSTRAP INITIALIZATION
+     * ========================================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      WinManager.init();
+      Slug3DEngine.init();
+      ForumEngine.init();
+      SweeperEngine.init();
+      SlimePadEngine.init();
+
+      // Open SLUG-NET Explorer by default
+      WinManager.open('win-slugnet');
+
+      // Spawn initial ambient garden slugs
+      setTimeout(spawnDesktopSlug, 1200);
+      setTimeout(spawnDesktopSlug, 3000);
+    });
+  </script>
+</body>
+</html>
